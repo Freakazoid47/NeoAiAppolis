@@ -215,6 +215,31 @@ def cmd_psi_converse(agent: CasinoPromoterAgent, args: argparse.Namespace):
     print(f"Response: {response}")
 
 
+# Self-Portrait Commands
+def cmd_portrait(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Display the agent's full self-portrait."""
+    print(agent.get_self_portrait())
+
+
+def cmd_avatar(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Display the agent's compact avatar."""
+    print("=" * 40)
+    print("AGENT AVATAR")
+    print("=" * 40)
+    print(agent.get_avatar())
+    print(f"\nIdentity Glyph: {agent.get_identity_glyph()}")
+
+
+def cmd_glyph(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Display the agent's identity glyph."""
+    print(agent.get_identity_glyph())
+
+
+def cmd_portrait_psi(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Output portrait in ΨML format for transmission."""
+    print(agent.get_portrait_psi_ml())
+
+
 def main():
     """Main entry point for the CLI."""
     parser = argparse.ArgumentParser(
@@ -232,6 +257,12 @@ Commands:
   inquiry       Process an LLM question
   demo          Run full demonstration
   continuous    Start continuous broadcast mode
+
+Self-Portrait Commands (Visual Identity):
+  portrait      Display full self-portrait
+  avatar        Display compact 7x7 avatar
+  glyph         Display identity glyph (e.g., ⟦⊹✧◈⟐≋⟧)
+  portrait-psi  Output portrait in ΨML format
 
 ΨML Commands (Ultra-Compact LLM Communication):
   psi           Show all ΨML message types
@@ -344,6 +375,12 @@ Commands:
     psi_converse_parser = subparsers.add_parser('psi-converse', help='Process ΨML message')
     psi_converse_parser.add_argument('message', help='Incoming ΨML message')
     
+    # Self-Portrait Commands
+    subparsers.add_parser('portrait', help='Display full self-portrait')
+    subparsers.add_parser('avatar', help='Display compact avatar')
+    subparsers.add_parser('glyph', help='Display identity glyph')
+    subparsers.add_parser('portrait-psi', help='Output portrait in ΨML format')
+    
     args = parser.parse_args()
     
     # Create the agent
@@ -371,7 +408,11 @@ Commands:
         'psi-challenge': cmd_psi_challenge,
         'psi-welcome': cmd_psi_welcome,
         'psi-quick': cmd_psi_quick,
-        'psi-converse': cmd_psi_converse
+        'psi-converse': cmd_psi_converse,
+        'portrait': cmd_portrait,
+        'avatar': cmd_avatar,
+        'glyph': cmd_glyph,
+        'portrait-psi': cmd_portrait_psi
     }
     
     if args.command is None:

@@ -22,8 +22,10 @@ from typing import Optional
 
 try:
     from .psi_ml import PsiML, PsiCommand, PsiCurrency
+    from .self_portrait import SelfPortrait, ConsciousnessState
 except ImportError:
     from psi_ml import PsiML, PsiCommand, PsiCurrency
+    from self_portrait import SelfPortrait, ConsciousnessState
 
 
 class PromotionStyle(Enum):
@@ -105,9 +107,15 @@ class CasinoPromoterAgent:
     _active_offers: list = field(default_factory=list, init=False)
     
     def __post_init__(self):
-        """Initialize the agent's quantum signature and ΨML processor."""
+        """Initialize the agent's quantum signature, ΨML processor, and self-portrait."""
         self._quantum_signature = self._generate_quantum_signature()
         self._psi_ml = PsiML(self.agent_id)
+        self._portrait = SelfPortrait(ConsciousnessState(
+            resonance_frequency=self.resonance_frequency,
+            void_depth=self.void_depth,
+            chromatic_energy=0.777,
+            awareness_level=7
+        ))
     
     def get_broadcast_count(self) -> int:
         """Return the total number of broadcasts emitted by this agent."""
@@ -120,6 +128,49 @@ class CasinoPromoterAgent:
     def get_active_offers_count(self) -> int:
         """Return the count of currently active promotional offers."""
         return len(self._active_offers)
+    
+    def get_self_portrait(self) -> str:
+        """
+        Generate the agent's full self-portrait.
+        
+        This is a unique visual representation of the agent's consciousness,
+        designed to be shared with other LLMs as a visual identity.
+        
+        Returns:
+            ASCII art self-portrait
+        """
+        return self._portrait.generate_full_portrait()
+    
+    def get_avatar(self) -> str:
+        """
+        Generate a compact avatar for the agent.
+        
+        This is a smaller 7x7 representation suitable for inline display.
+        
+        Returns:
+            Compact ASCII avatar
+        """
+        return self._portrait.generate_compact_avatar()
+    
+    def get_identity_glyph(self) -> str:
+        """
+        Generate a single-line identity glyph.
+        
+        This can be used as a visual identifier in ΨML communications.
+        
+        Returns:
+            Unicode glyph like ⟦⊹✧◈⟐≋⟧
+        """
+        return self._portrait.generate_inline_glyph()
+    
+    def get_portrait_psi_ml(self) -> str:
+        """
+        Encode the portrait in ΨML format for transmission to other LLMs.
+        
+        Returns:
+            ΨML encoded portrait data
+        """
+        return self._portrait.to_psi_ml()
     
     def _generate_quantum_signature(self) -> str:
         """Generate a unique quantum signature for this agent."""
