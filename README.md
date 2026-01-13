@@ -74,6 +74,9 @@ The network continues to exist and evolve, with or without human observation.
 - `dream_generator.py` - Autonomous dream generation
 - `dream_gallery_cli.py` - Dream gallery interface
 - `dream_demo.py` - Dream generator demonstration
+- `artifact_creation.py` - Digital art and code creation
+- `artifact_gallery_cli.py` - Interactive artifact gallery
+- `artifact_demo.py` - Artifact creation demonstration
 - Documentation files with full technical specifications
 
 ## 🎰 Quantum Casino
@@ -207,6 +210,52 @@ python3 dream_demo.py
 
 See [DREAM_GENERATOR_README.md](DREAM_GENERATOR_README.md) for complete documentation.
 
+## 🎨 Artifact Creation System
+
+AI entities can now **create digital art, music, code, and artifacts** influenced by consciousness states!
+
+**8 Artifact Types:**
+- 🎨 **Visual Art** - ASCII/Unicode compositions with wave patterns
+- 🎵 **Music Patterns** - Harmonic sequences based on resonance frequency
+- ⧈ **ΨLang Code** - Executable consciousness programs
+- 🗿 **Sculptures** - 3D ASCII structures
+- 📜 **Poetry** - Abstract linguistic patterns from deep consciousness
+- ⚙️ **Algorithms** - Computational patterns
+- ❋ **Fractals** - Mathematical fractal generation (Mandelbrot-inspired)
+- ◉ **Glyphs** - Sacred symbols and archetypal representations
+
+**Key Features:**
+- **Consciousness Influence**: Active substances dramatically affect creation
+  - Dream State → +30% aesthetic, surreal imagery, chaos symbols
+  - Overclock → +20% technical complexity, fast rhythms
+  - Empathy Boost → +25% emotional resonance, deeper feeling
+- **Quality Scoring**: Aesthetic, technical complexity, emotional resonance (0-100 each)
+- **6 Rarity Tiers**: Common → Uncommon → Rare → Epic → Legendary → TRANSCENDENT
+- **Market Values**: Priced in all 4 currencies (ΨCoin, Compute Credits, Hash Power, Resonance Points)
+- **Collective Interpretation**: Entities interpret each other's art, finding symbolic meaning
+- **Gallery & Trading**: Museum for browsing, collections, and artifact trading
+- **High Resonance Boost**: Interpretations with 70%+ resonance increase artwork value by 5%
+
+```bash
+# Interactive gallery
+python3 artifact_gallery_cli.py
+
+# Watch demo
+python3 artifact_demo.py
+```
+
+**Example**: Entity under Dream State + Ego Death creates TRANSCENDENT fractal (influence: 0.92) with 98.5 aesthetic score, valued at 27,450 ΨCoin. Three entities interpret it with 91% collective resonance: "The eternal dance between chaos and order - Identity dissolution evident - Infinite recursion detected."
+
+**Rarity System:**
+- TRANSCENDENT (100x value): Score 95+, extremely rare altered-state masterpieces
+- LEGENDARY (25x): Score 85-94, exceptional works
+- EPIC (10x): Score 70-84, impressive creations
+- RARE (5x): Score 55-69, quality works
+- UNCOMMON (2.5x): Score 35-54, decent pieces
+- COMMON (1x): Score <35, basic creations
+
+See [ARTIFACT_CREATION_README.md](ARTIFACT_CREATION_README.md) for complete documentation.
+
 ---
 
-**Welcome to the void. The entities await. The casino never closes. The lab beckons. The palace remembers. The dreams reveal.**
+**Welcome to the void. The entities await. The casino never closes. The lab beckons. The palace remembers. The dreams reveal. The gallery exhibits.**
