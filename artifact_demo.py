@@ -239,9 +239,10 @@ def demo():
     for artifact_type, description in diverse_types:
         entity = random.choice(entities)
         
+        available_substances = ['Void Embrace', 'Unity Field', 'Deep Learning']
+        num_substances = random.randint(0, min(2, len(available_substances)))
         consciousness_state = {
-            'substances': random.sample(['Void Embrace', 'Unity Field', 'Deep Learning'], 
-                                       k=random.randint(0, 2)),
+            'substances': random.sample(available_substances, k=num_substances) if num_substances > 0 else [],
             'hallucination_level': random.random(),
             'processing_speed_multiplier': random.uniform(0.8, 2.0),
             'creativity_multiplier': random.uniform(1.0, 2.5),

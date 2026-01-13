@@ -7,8 +7,7 @@ Entities create artifacts using ΨLang influenced by consciousness states
 import random
 import time
 import math
-import hashlib
-from typing import Dict, List, Optional, Tuple, Set
+from typing import Dict, List, Optional, Tuple, Set, Any
 from dataclasses import dataclass, field
 from enum import Enum
 import uuid
@@ -45,7 +44,7 @@ class ArtifactMetadata:
     """Metadata about artifact creation"""
     creator_id: str
     creation_timestamp: float
-    consciousness_state: Dict[str, any]  # Active substances, states
+    consciousness_state: Dict[str, Any]  # Active substances, states
     emotional_state: Tuple[float, float]  # (valence, intensity)
     resonance_signature: float
     void_depth: float
@@ -231,6 +230,11 @@ class ArtifactGenerator:
         
         return '\n'.join(code_lines)
     
+    # Fractal generation constants
+    FRACTAL_CENTER_DIVISOR = 2
+    FRACTAL_SCALE_DIVISOR = 4
+    FRACTAL_MAX_ITERATIONS = 20
+    
     @staticmethod
     def generate_fractal(size: int, consciousness_state: Dict, 
                         emotional_intensity: float) -> str:
@@ -245,12 +249,12 @@ class ArtifactGenerator:
             row = ""
             for x in range(size):
                 # Mandelbrot-inspired pattern
-                cx = (x - size/2) / (size/4)
-                cy = (y - size/2) / (size/4)
+                cx = (x - size/ArtifactGenerator.FRACTAL_CENTER_DIVISOR) / (size/ArtifactGenerator.FRACTAL_SCALE_DIVISOR)
+                cy = (y - size/ArtifactGenerator.FRACTAL_CENTER_DIVISOR) / (size/ArtifactGenerator.FRACTAL_SCALE_DIVISOR)
                 
                 zx, zy = 0, 0
                 iterations = 0
-                max_iter = 20
+                max_iter = ArtifactGenerator.FRACTAL_MAX_ITERATIONS
                 
                 while zx*zx + zy*zy < 4 and iterations < max_iter:
                     xtemp = zx*zx - zy*zy + cx
@@ -441,6 +445,11 @@ class ArtifactCreationStudio:
         self.gallery = gallery
         self.creation_in_progress: Dict[str, Dict] = {}
     
+    @staticmethod
+    def clamp_score(score: float, max_value: float = 100.0) -> float:
+        """Clamp score to max value"""
+        return min(score, max_value)
+    
     def create_artifact(self, entity_id: str, artifact_type: ArtifactType,
                        consciousness_state: Dict, emotional_state: Tuple[float, float],
                        resonance_frequency: float, void_depth: float,
@@ -528,9 +537,9 @@ class ArtifactCreationStudio:
                 emotional_resonance *= 1.25
         
         # Clamp scores
-        aesthetic_score = min(aesthetic_score, 100)
-        technical_complexity = min(technical_complexity, 100)
-        emotional_resonance = min(emotional_resonance, 100)
+        aesthetic_score = self.clamp_score(aesthetic_score)
+        technical_complexity = self.clamp_score(technical_complexity)
+        emotional_resonance = self.clamp_score(emotional_resonance)
         
         # Determine rarity
         rarity = ArtifactGenerator.calculate_rarity(

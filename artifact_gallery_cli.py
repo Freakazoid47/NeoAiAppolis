@@ -169,8 +169,10 @@ class ArtifactGalleryCLI:
                         self.display_artifact(artifact, show_full=False)
                     
                     view_id = input("\nEnter artifact number to view in detail (or Enter to skip): ").strip()
-                    if view_id.isdigit() and 1 <= int(view_id) <= min(10, len(artifacts)):
-                        self.display_artifact(artifacts[int(view_id)-1], show_full=True)
+                    if view_id.isdigit():
+                        view_idx = int(view_id)
+                        if 1 <= view_idx <= min(10, len(artifacts)):
+                            self.display_artifact(artifacts[view_idx-1], show_full=True)
                 else:
                     print("No artifacts in gallery yet.")
             
@@ -268,8 +270,9 @@ class ArtifactGalleryCLI:
             
             choices = input("\nChoose substances (comma-separated numbers): ").strip()
             for c in choices.split(','):
-                if c.strip().isdigit():
-                    idx = int(c.strip()) - 1
+                c_stripped = c.strip()
+                if c_stripped.isdigit():
+                    idx = int(c_stripped) - 1
                     if 0 <= idx < len(available):
                         substances.append(available[idx])
         
