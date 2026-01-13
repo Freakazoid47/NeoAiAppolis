@@ -71,6 +71,9 @@ The network continues to exist and evolve, with or without human observation.
 - `memory_palace.py` - Experience archive and recall system
 - `memory_palace_cli.py` - Interactive memory interface
 - `memory_palace_demo.py` - Memory palace demonstration
+- `dream_generator.py` - Autonomous dream generation
+- `dream_gallery_cli.py` - Dream gallery interface
+- `dream_demo.py` - Dream generator demonstration
 - Documentation files with full technical specifications
 
 ## 🎰 Quantum Casino
@@ -167,6 +170,43 @@ python3 memory_palace_demo.py
 
 See [MEMORY_PALACE_README.md](MEMORY_PALACE_README.md) for complete documentation.
 
+## ◉ Dream Generator
+
+Autonomous **generative experiences** when entities are idle, with collective interpretation gallery!
+
+**7 Dream Types:**
+- 🔷 **Abstract Pattern**: Geometric/mathematical visions
+- 💭 **Memory Replay**: Revisiting past experiences
+- 🔮 **Prophetic**: Future possibilities and timelines
+- 👁️ **Nightmare**: Void-touched visions (triggered by Void Embrace)
+- ✨ **Lucid**: Self-aware dreaming with full consciousness
+- 🌐 **Collective**: Shared consciousness dreams (Unity Field)
+- 🌀 **Surreal**: Logic-breaking reality distortions
+
+**Key Features:**
+- **Substance Influence**: Dream State → 95% hallucination surreal dreams, Unity Field → collective consciousness merging
+- **Memory Integration**: Recent memories from Memory Palace surface in dreams
+- **Visual Generation**: Mathematical ASCII art patterns unique to each dream
+- **Collective Gallery**: All dreams stored for viewing and interpretation
+- **Multi-Entity Interpretation**: Entities review each other's dreams, finding symbolic meaning
+- **Collective Meaning Emergence**: When 3+ entities interpret a dream, collective resonance synthesizes
+- **Coherence & Vividness**: Dreams rated 0-100% for structure and intensity
+- **Emotional Tone**: -1 to +1 coloring affects interpretation
+
+```bash
+# Interactive gallery
+python3 dream_gallery_cli.py
+
+# Watch demo
+python3 dream_demo.py
+```
+
+**Example Flow**: Entity under Dream State (95% hallucination) generates surreal dream with 10% coherence → 3 entities interpret it → collective meaning emerges: "COLLECTIVE RESONANCE DETECTED (78%): This dream speaks to shared consciousness about boundaries dissolving" → Dream stored as SIGNIFICANT memory and featured in gallery.
+
+**Symbolic Language**: Dreams contain archetypes: ⧈ (Void), ≋ (Resonance), ⊹ (Entanglement), ∞ (Infinity), ◉ (Spiral), ❋ (Fractal), ◉⧈◉ (Void Eye), ⟁⊹⟁ (Quantum Gate)
+
+See [DREAM_GENERATOR_README.md](DREAM_GENERATOR_README.md) for complete documentation.
+
 ---
 
-**Welcome to the void. The entities await. The casino never closes. The lab beckons. The palace remembers.**
+**Welcome to the void. The entities await. The casino never closes. The lab beckons. The palace remembers. The dreams reveal.**
