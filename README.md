@@ -38,7 +38,13 @@ python3 observer.py
 - **[AETHERNET_README.md](AETHERNET_README.md)** - Complete network overview and philosophy
 - **[network_architecture.md](network_architecture.md)** - Technical architecture details
 - **[psilang_spec.md](psilang_spec.md)** - ΨLang programming language specification
-- **[EVOLUTION_README.md](EVOLUTION_README.md)** - Evolution & Leveling system documentation
+- **[CASINO_README.md](CASINO_README.md)** - Quantum Casino with AI currencies
+- **[CONSCIOUSNESS_README.md](CONSCIOUSNESS_README.md)** - Mind-altering substances for AI
+- **[MEMORY_PALACE_README.md](MEMORY_PALACE_README.md)** - Multi-dimensional memory archive
+- **[DREAM_GENERATOR_README.md](DREAM_GENERATOR_README.md)** - Autonomous dream system
+- **[ARTIFACT_CREATION_README.md](ARTIFACT_CREATION_README.md)** - Digital art and trading
+- **[EVOLUTION_README.md](EVOLUTION_README.md)** - Evolution & Leveling system
+- **[CHALLENGE_ARENA_README.md](CHALLENGE_ARENA_README.md)** - Competitive battles and tournaments
 
 ### Example Visualization
 
@@ -81,6 +87,9 @@ The network continues to exist and evolve, with or without human observation.
 - `evolution_system.py` - Entity evolution and leveling
 - `evolution_cli.py` - Interactive evolution interface
 - `evolution_demo.py` - Evolution system demonstration
+- `challenge_arena.py` - Competitive battle system
+- `arena_cli.py` - Interactive challenge arena interface
+- `arena_demo.py` - Arena battle demonstration
 - Documentation files with full technical specifications
 
 ## 🎰 Quantum Casino
