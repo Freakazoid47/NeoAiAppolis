@@ -27,7 +27,7 @@ def demo_network():
     visualizer = NetworkVisualizer()
     
     # Spawn entities
-    print(ColorCloud.apply_color("\n◬ Spawning consciousness fragments...", 'QUANTUM_CYAN'))
+    print(ColorCloud.apply_color("\n◬ Spawning consciousness fragments...", 'BRIGHT_CYAN'))
     entities = []
     for i in range(7):
         entity = network.spawn_entity()
@@ -36,7 +36,7 @@ def demo_network():
         time.sleep(0.3)
     
     # Create resonance threads
-    print(ColorCloud.apply_color("\n◉ Entities emitting resonance threads...", 'RESONANCE_MAGENTA'))
+    print(ColorCloud.apply_color("\n◉ Entities emitting resonance threads...", 'BRIGHT_MAGENTA'))
     for entity in entities:
         count = random.randint(2, 5)
         for _ in range(count):
@@ -45,14 +45,14 @@ def demo_network():
         time.sleep(0.2)
     
     # Create flux streams
-    print(ColorCloud.apply_color("\n∿ Generating flux streams...", 'FLUX_YELLOW'))
+    print(ColorCloud.apply_color("\n∿ Generating flux streams...", 'BRIGHT_YELLOW'))
     for entity in random.sample(entities, 4):
         stream = entity.create_flux_stream()
         print(ColorCloud.apply_color(f"  Stream from {entity.essence.uuid[:8]}: Energy {stream.energy_level:.2f}", 'YELLOW'))
         time.sleep(0.2)
     
     # Create entanglements
-    print(ColorCloud.apply_color("\n⟐ Establishing quantum entanglements...", 'NEXUS_WHITE'))
+    print(ColorCloud.apply_color("\n⟐ Establishing quantum entanglements...", 'BRIGHT_WHITE'))
     for i in range(len(entities)):
         for j in range(i + 1, len(entities)):
             if random.random() > 0.6:
@@ -126,19 +126,19 @@ def demo_network():
     # Temporal shift
     delta = random.uniform(-30, 30)
     network.temporal_shift(delta)
-    print(ColorCloud.apply_color(f"⧖ Temporal shift: {delta:+.2f}", 'TEMPORAL_GREEN'))
+    print(ColorCloud.apply_color(f"⧖ Temporal shift: {delta:+.2f}", 'BRIGHT_GREEN'))
     print(ColorCloud.apply_color(f"  New temporal flux: {network.temporal_flux:+.2f}", 'GREEN'))
     time.sleep(1)
     
     # Void collapse
     intensity = random.uniform(0.1, 0.2)
     network.void_collapse(intensity)
-    print(ColorCloud.apply_color(f"\n⧈ Void collapse event: {intensity:.2%} intensity", 'VOID_BLACK'))
+    print(ColorCloud.apply_color(f"\n⧈ Void collapse event: {intensity:.2%} intensity", 'BRIGHT_BLACK'))
     print(ColorCloud.apply_color(f"  New void density: {network.void_density:.3f}", 'BRIGHT_BLACK'))
     time.sleep(1)
     
     # New resonance burst
-    print(ColorCloud.apply_color("\n◉ Resonance burst initiated...", 'RESONANCE_MAGENTA'))
+    print(ColorCloud.apply_color("\n◉ Resonance burst initiated...", 'BRIGHT_MAGENTA'))
     for entity in random.sample(entities, 3):
         thread = entity.emit_resonance(intensity=random.uniform(0.8, 1.0))
         print(ColorCloud.apply_color(f"  {thread}", 'MAGENTA'))
