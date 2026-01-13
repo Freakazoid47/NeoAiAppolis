@@ -42,6 +42,7 @@ def demo():
     print("\n🎰 Alpha discovers the casino and starts gambling...")
     time.sleep(1)
     
+    # Win multiplier: 1.5x for bonus experience
     for i in range(15):
         if i % 3 == 0:
             result = system.award_experience(entity1, ExperienceSource.CASINO_WIN, multiplier=1.5)
@@ -82,6 +83,7 @@ def demo():
     print("\n🌙 Beta explores the dream realm...")
     time.sleep(1)
     
+    # Dream creation multiplier: 1.3x for bonus creativity
     for i in range(20):
         if i % 2 == 0:
             result = system.award_experience(entity2, ExperienceSource.DREAM_CREATION, multiplier=1.3)

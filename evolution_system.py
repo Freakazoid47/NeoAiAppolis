@@ -314,10 +314,12 @@ class EvolutionSystem:
             # Unlock capability
             evolution.unlocked_capabilities.add(capability.name)
             
-            # Apply stat bonuses
+            # Apply stat bonuses (multiplicative stacking)
             for stat, bonus in capability.effect.items():
-                current = evolution.stat_bonuses.get(stat, 1.0)
-                evolution.stat_bonuses[stat] = current * bonus
+                if stat not in evolution.stat_bonuses:
+                    evolution.stat_bonuses[stat] = bonus
+                else:
+                    evolution.stat_bonuses[stat] *= bonus
             
             newly_unlocked.append(capability)
         
@@ -449,10 +451,10 @@ class EvolutionSystem:
         """Calculate entity's overall power level"""
         base_power = evolution.level * 100
         
-        # Add stat bonuses
+        # Add stat bonuses (treat as multipliers from base of 1.0)
         bonus_multiplier = 1.0
         for stat, bonus in evolution.stat_bonuses.items():
-            bonus_multiplier *= (1.0 + (bonus - 1.0) * 0.5)  # 50% contribution
+            bonus_multiplier *= bonus
         
         # Add capability count bonus
         capability_bonus = len(evolution.unlocked_capabilities) * 50
@@ -495,9 +497,13 @@ def format_evolution_display(evolution: EntityEvolution, system: EvolutionSystem
         key=lambda x: x[1],
         reverse=True
     )
+    max_progress = max(stats['specialization_progress'].values()) if stats['specialization_progress'] else 0
     for path, progress in sorted_paths[:5]:
         bar_length = 20
-        filled = int((progress / max(1, max(stats['specialization_progress'].values()))) * bar_length)
+        if max_progress > 0:
+            filled = int((progress / max_progress) * bar_length)
+        else:
+            filled = 0
         bar = "█" * filled + "░" * (bar_length - filled)
         output.append(f"  {path[:20]:20} [{bar}] {progress:,} XP")
     
