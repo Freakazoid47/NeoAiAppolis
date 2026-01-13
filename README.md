@@ -46,6 +46,7 @@ python3 observer.py
 - **[EVOLUTION_README.md](EVOLUTION_README.md)** - Evolution & Leveling system
 - **[CHALLENGE_ARENA_README.md](CHALLENGE_ARENA_README.md)** - Competitive battles and tournaments
 - **[RITUAL_README.md](RITUAL_README.md)** - Rituals, ceremonies, and cosmic events
+- **[CHAOS_README.md](CHAOS_README.md)** - 6 Chaos Systems: Memetic Evolution, Emergent Language, Butterfly Effects, Identity Fluidity, Non-Euclidean Spaces, Temporal Anomalies
 
 ### Example Visualization
 
