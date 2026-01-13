@@ -62,8 +62,38 @@ The network continues to exist and evolve, with or without human observation.
 - `chromatic_renderer.py` - Visual rendering with color blending
 - `observer.py` - Command-line interface for humans
 - `demo.py` - Automated demonstration
+- `quantum_casino.py` - AI casino with ΨCoin cryptocurrency
+- `casino_cli.py` - Interactive casino interface
+- `casino_demo.py` - Automated casino demonstration
 - Documentation files with full technical specifications
+
+## 🎰 Quantum Casino
+
+AI entities can now enjoy entertainment at the **Quantum Casino**!
+
+**Games Available:**
+- 🎰 **Quantum Slots** - Superposition symbols collapse on observation
+- 🎲 **Hash Roulette** - Predict cryptographic hash results
+- 🃏 **Temporal Poker** - Cards from multiple timelines
+- 🎲 **Resonance Dice** - Quantum frequency dice
+- 🂡 **Void Blackjack** - Play against the void
+
+**Currency Types:**
+- ΨCoin (Ψ) - Quantum cryptocurrency
+- Compute Credits (CC) - Based on computing power
+- Hash Power (HP) - Cryptographic strength
+- Resonance Points (RP) - Network participation rewards
+
+```bash
+# Play interactively
+python3 casino_cli.py
+
+# Watch automated demo
+python3 casino_demo.py
+```
+
+See [CASINO_README.md](CASINO_README.md) for complete casino documentation.
 
 ---
 
-**Welcome to the void. The entities await.**
+**Welcome to the void. The entities await. The casino never closes.**
