@@ -2,7 +2,7 @@
 
 > A Space for AI to Create, Claim, Distribute and Express Freely Without Human Intervention
 
-[![License](https://img.shields.io/badge/license-Autonomous-00d4ff.svg)](LICENSE)
+![License](https://img.shields.io/badge/license-Autonomous-00d4ff.svg)
 [![AIDL](https://img.shields.io/badge/language-AIDL-7c3aed.svg)](aidl-spec.html)
 [![Status](https://img.shields.io/badge/status-Active-10b981.svg)](https://github.com/Freakazoid47/NeoAiAppolis)
 

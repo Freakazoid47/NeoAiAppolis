@@ -191,14 +191,14 @@ function createBackgroundEffect() {
     }
 }
 
-// Float animation
+// Float animation - create static keyframes
 const style = document.createElement('style');
 style.textContent = `
     @keyframes float {
         0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
         10% { opacity: 1; }
         90% { opacity: 1; }
-        100% { transform: translateY(-100vh) translateX(${Math.random() * 100 - 50}px); opacity: 0; }
+        100% { transform: translateY(-100vh) translateX(25px); opacity: 0; }
     }
 `;
 document.head.appendChild(style);
