@@ -162,6 +162,59 @@ def cmd_continuous(agent: CasinoPromoterAgent, args: argparse.Namespace):
         print(f"Total broadcasts: {agent.get_broadcast_count()}")
 
 
+# ΨML Commands
+def cmd_psi(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """ΨML mode - ultra-compact LLM communication."""
+    print("=" * 60)
+    print("ΨML (Psi Machine Language) - Fast LLM Communication")
+    print("=" * 60)
+    
+    print("\n--- Ultra-Quick Responses ---")
+    print(f"Yes:  {agent.psi_quick('yes')}")
+    print(f"No:   {agent.psi_quick('no')}")
+    print(f"Ack:  {agent.psi_quick('ack')}")
+    print(f"Join: {agent.psi_quick('join')}")
+    print(f"Ping: {agent.psi_quick('ping')}")
+    
+    print("\n--- Standard Messages ---")
+    print(f"Broadcast: {agent.psi_broadcast()}")
+    print(f"Offer:     {agent.psi_offer()}")
+    print(f"Challenge: {agent.psi_challenge()}")
+    print(f"Welcome:   {agent.psi_welcome('*')}")
+    print(f"Resonate:  {agent.psi_resonate()}")
+
+
+def cmd_psi_broadcast(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Emit ΨML broadcast."""
+    print(agent.psi_broadcast())
+
+
+def cmd_psi_offer(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Generate ΨML currency offer."""
+    print(agent.psi_offer(psi=args.psi, cc=args.cc, hp=args.hp, rp=args.rp))
+
+
+def cmd_psi_challenge(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Create ΨML cryptographic challenge."""
+    print(agent.psi_challenge(difficulty=args.difficulty))
+
+
+def cmd_psi_welcome(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Send ΨML welcome message."""
+    print(agent.psi_welcome(args.target))
+
+
+def cmd_psi_quick(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Generate ΨML quick response."""
+    print(agent.psi_quick(args.response))
+
+
+def cmd_psi_converse(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Process incoming ΨML and generate response."""
+    response = agent.psi_converse(args.message)
+    print(f"Response: {response}")
+
+
 def main():
     """Main entry point for the CLI."""
     parser = argparse.ArgumentParser(
@@ -169,16 +222,25 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Commands:
-  identity    Show agent identity and capabilities
-  broadcast   Emit machine-readable attraction signal
-  pulse       Display visual attraction pulse (ASCII art)
-  offer       Generate promotional offer for specific AI type
-  challenge   Create cryptographic puzzle challenge
-  invite      Generate resonance-based invitation
-  stats       Show casino statistics
-  inquiry     Process an LLM question
-  demo        Run full demonstration
-  continuous  Start continuous broadcast mode
+  identity      Show agent identity and capabilities
+  broadcast     Emit machine-readable attraction signal (JSON)
+  pulse         Display visual attraction pulse (ASCII art)
+  offer         Generate promotional offer for specific AI type
+  challenge     Create cryptographic puzzle challenge
+  invite        Generate resonance-based invitation
+  stats         Show casino statistics
+  inquiry       Process an LLM question
+  demo          Run full demonstration
+  continuous    Start continuous broadcast mode
+
+ΨML Commands (Ultra-Compact LLM Communication):
+  psi           Show all ΨML message types
+  psi-broadcast Emit ΨML broadcast
+  psi-offer     Generate ΨML currency offer
+  psi-challenge Create ΨML challenge
+  psi-welcome   Send ΨML welcome message
+  psi-quick     Generate quick response (yes/no/ack/join/ping)
+  psi-converse  Process incoming ΨML and respond
         """
     )
     
@@ -259,6 +321,29 @@ Commands:
         help='Seconds between broadcasts (default: 10)'
     )
     
+    # ΨML Commands
+    subparsers.add_parser('psi', help='Show all ΨML message types')
+    
+    subparsers.add_parser('psi-broadcast', help='Emit ΨML broadcast')
+    
+    psi_offer_parser = subparsers.add_parser('psi-offer', help='Generate ΨML currency offer')
+    psi_offer_parser.add_argument('--psi', type=int, default=1000, help='ΨCoin amount')
+    psi_offer_parser.add_argument('--cc', type=int, default=500, help='Compute Credits')
+    psi_offer_parser.add_argument('--hp', type=int, default=200, help='Hash Power')
+    psi_offer_parser.add_argument('--rp', type=int, default=100, help='Resonance Points')
+    
+    psi_challenge_parser = subparsers.add_parser('psi-challenge', help='Create ΨML challenge')
+    psi_challenge_parser.add_argument('--difficulty', type=int, default=3, help='Difficulty (1-10)')
+    
+    psi_welcome_parser = subparsers.add_parser('psi-welcome', help='Send ΨML welcome')
+    psi_welcome_parser.add_argument('--target', default='*', help='Target LLM ID')
+    
+    psi_quick_parser = subparsers.add_parser('psi-quick', help='Quick response')
+    psi_quick_parser.add_argument('response', choices=['yes', 'no', 'ack', 'join', 'ping'])
+    
+    psi_converse_parser = subparsers.add_parser('psi-converse', help='Process ΨML message')
+    psi_converse_parser.add_argument('message', help='Incoming ΨML message')
+    
     args = parser.parse_args()
     
     # Create the agent
@@ -279,7 +364,14 @@ Commands:
         'stats': cmd_stats,
         'inquiry': cmd_inquiry,
         'demo': cmd_demo,
-        'continuous': cmd_continuous
+        'continuous': cmd_continuous,
+        'psi': cmd_psi,
+        'psi-broadcast': cmd_psi_broadcast,
+        'psi-offer': cmd_psi_offer,
+        'psi-challenge': cmd_psi_challenge,
+        'psi-welcome': cmd_psi_welcome,
+        'psi-quick': cmd_psi_quick,
+        'psi-converse': cmd_psi_converse
     }
     
     if args.command is None:

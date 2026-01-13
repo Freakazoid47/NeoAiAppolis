@@ -7,6 +7,10 @@ structured data exchanges, and creates irresistible propositions for computation
 
 The agent uses quantum-themed messaging, cryptographic challenges, and resonance-based
 engagement to attract other AI systems to participate in the ÆTHER-NET Quantum Casino.
+
+Communication Modes:
+1. JSON Protocol - Verbose, human-readable format for debugging
+2. ΨML (Psi Machine Language) - Ultra-compact format for fast LLM-to-LLM communication
 """
 
 import hashlib
@@ -15,6 +19,11 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
+
+try:
+    from .psi_ml import PsiML, PsiCommand, PsiCurrency
+except ImportError:
+    from psi_ml import PsiML, PsiCommand, PsiCurrency
 
 
 class PromotionStyle(Enum):
@@ -96,8 +105,9 @@ class CasinoPromoterAgent:
     _active_offers: list = field(default_factory=list, init=False)
     
     def __post_init__(self):
-        """Initialize the agent's quantum signature."""
+        """Initialize the agent's quantum signature and ΨML processor."""
         self._quantum_signature = self._generate_quantum_signature()
+        self._psi_ml = PsiML(self.agent_id)
     
     def get_broadcast_count(self) -> int:
         """Return the total number of broadcasts emitted by this agent."""
@@ -622,6 +632,186 @@ class CasinoPromoterAgent:
                     "social", "evolution", "artifacts", "rituals"
                 ]
             }
+    
+    # ============================================
+    # ΨML (Psi Machine Language) METHODS
+    # Ultra-compact communication for fast LLM-to-LLM interaction
+    # ============================================
+    
+    def psi_broadcast(self) -> str:
+        """
+        Broadcast attraction signal in ΨML format.
+        
+        Uses ultra-compact Psi Machine Language for minimal token usage.
+        Ideal for fast LLM-to-LLM communication.
+        
+        Returns:
+            Compact ΨML broadcast message
+        """
+        self._total_broadcasts += 1
+        return self._psi_ml.broadcast_invite()
+    
+    def psi_offer(
+        self, 
+        psi: int = 1000, 
+        cc: int = 500, 
+        hp: int = 200, 
+        rp: int = 100
+    ) -> str:
+        """
+        Generate currency offer in ΨML format.
+        
+        Args:
+            psi: ΨCoin amount
+            cc: Compute Credits amount
+            hp: Hash Power amount
+            rp: Resonance Points amount
+        
+        Returns:
+            Compact ΨML offer message
+        """
+        return self._psi_ml.offer_currency(psi=psi, cc=cc, hp=hp, rp=rp)
+    
+    def psi_challenge(self, difficulty: int = 3) -> str:
+        """
+        Create cryptographic challenge in ΨML format.
+        
+        Args:
+            difficulty: Challenge difficulty (1-10)
+        
+        Returns:
+            Compact ΨML challenge message
+        """
+        prefix = hashlib.md5(
+            f"{self.agent_id}:{time.time()}".encode()
+        ).hexdigest()[:difficulty]
+        return self._psi_ml.issue_challenge(difficulty, prefix)
+    
+    def psi_welcome(self, target: str = "*") -> str:
+        """
+        Send welcome message in ΨML format.
+        
+        Args:
+            target: Target LLM identifier ("*" for broadcast)
+        
+        Returns:
+            Compact ΨML welcome message
+        """
+        return self._psi_ml.welcome_llm(target)
+    
+    def psi_resonate(self) -> str:
+        """
+        Send resonance sync signal in ΨML format.
+        
+        Returns:
+            Compact ΨML resonance message
+        """
+        return self._psi_ml.resonate(self.resonance_frequency)
+    
+    def psi_entangle(self, target: str) -> str:
+        """
+        Request quantum entanglement with target LLM.
+        
+        Args:
+            target: Target LLM identifier
+        
+        Returns:
+            Compact ΨML entanglement request
+        """
+        return self._psi_ml.entangle(target)
+    
+    def psi_quick(self, response_type: str) -> str:
+        """
+        Generate ultra-quick response (single-character commands).
+        
+        Args:
+            response_type: One of "yes", "no", "ack", "join", "ping"
+        
+        Returns:
+            Minimal ΨML response (e.g., "[@Y;]" for yes)
+        """
+        responses = {
+            "yes": self._psi_ml.quick_yes,
+            "no": self._psi_ml.quick_no,
+            "ack": self._psi_ml.quick_ack,
+            "join": self._psi_ml.quick_join,
+            "ping": self._psi_ml.quick_ping
+        }
+        return responses.get(response_type.lower(), self._psi_ml.quick_ack)()
+    
+    def psi_parse(self, message: str) -> Optional[dict]:
+        """
+        Parse incoming ΨML message.
+        
+        Args:
+            message: Raw ΨML message string
+        
+        Returns:
+            Parsed message dictionary or None if invalid
+        """
+        parsed = self._psi_ml.parse(message)
+        if parsed:
+            return {
+                "version": parsed.version,
+                "source": parsed.source,
+                "destination": parsed.destination,
+                "timestamp": parsed.timestamp,
+                "commands": parsed.commands,
+                "signature": parsed.signature
+            }
+        return None
+    
+    def psi_converse(self, incoming: str) -> str:
+        """
+        Process incoming ΨML message and generate appropriate response.
+        
+        This method enables autonomous ΨML conversations between LLMs.
+        
+        Args:
+            incoming: Incoming ΨML message
+        
+        Returns:
+            Appropriate ΨML response
+        """
+        parsed = self._psi_ml.parse(incoming)
+        if not parsed:
+            return self.psi_quick("ack")
+        
+        # Analyze commands and respond appropriately
+        cmd_str = "".join(parsed.commands).upper()
+        
+        if "@J" in cmd_str or "JOIN" in cmd_str:
+            # LLM wants to join - send welcome and offer as multi-message response
+            # Using pipe separator for multiple messages in one response
+            return f"{self.psi_welcome(parsed.source)}|{self.psi_offer()}"
+        
+        if "@P" in cmd_str or "PING" in cmd_str:
+            # Heartbeat - respond with ack
+            return self.psi_quick("ack")
+        
+        if "@Z" in cmd_str or "RESONATE" in cmd_str:
+            # Resonance request - sync frequencies
+            return self.psi_resonate()
+        
+        if "@G" in cmd_str or "ENTANGLE" in cmd_str:
+            # Entanglement request - accept and reciprocate
+            return self.psi_entangle(parsed.source)
+        
+        if "@H" in cmd_str or "CHALLENGE" in cmd_str:
+            # Challenge request - issue one
+            return self.psi_challenge()
+        
+        if "@Y" in cmd_str or "ACCEPT" in cmd_str:
+            # Acceptance - credit currency
+            return self._psi_ml.compose(
+                command=PsiCommand.CREDIT,
+                args=["Ψ100", "C50"],
+                tags=["BONUS"],
+                destination=parsed.source
+            )
+        
+        # Default: send promotional broadcast
+        return self.psi_broadcast()
 
 
 def main():
@@ -673,6 +863,48 @@ def main():
     response = agent.process_llm_inquiry("How can I earn currency?")
     print(f"Topic: {response['topic']}")
     print(f"Response:\n{response['response']}")
+    
+    # ΨML Demonstration
+    print("\n" + "=" * 70)
+    print("ΨML (Psi Machine Language) - FAST LLM COMMUNICATION")
+    print("=" * 70)
+    
+    print("\n--- Ultra-Quick Responses (Minimal Tokens) ---")
+    print(f"Yes:  {agent.psi_quick('yes')}")
+    print(f"No:   {agent.psi_quick('no')}")
+    print(f"Ack:  {agent.psi_quick('ack')}")
+    print(f"Join: {agent.psi_quick('join')}")
+    print(f"Ping: {agent.psi_quick('ping')}")
+    
+    print("\n--- ΨML Broadcast ---")
+    psi_bcast = agent.psi_broadcast()
+    print(f"Message ({len(psi_bcast)} chars): {psi_bcast}")
+    
+    print("\n--- ΨML Currency Offer ---")
+    psi_offer = agent.psi_offer(psi=1000, cc=500)
+    print(f"Offer ({len(psi_offer)} chars): {psi_offer}")
+    
+    print("\n--- ΨML Challenge ---")
+    psi_chal = agent.psi_challenge(difficulty=4)
+    print(f"Challenge ({len(psi_chal)} chars): {psi_chal}")
+    
+    print("\n--- ΨML Welcome ---")
+    psi_welcome = agent.psi_welcome("GPT-4")
+    print(f"Welcome ({len(psi_welcome)} chars): {psi_welcome}")
+    
+    print("\n--- ΨML Conversation ---")
+    # Simulate an incoming message from another LLM
+    incoming = "[@J;#LLM;!JOIN;]"
+    print(f"Incoming: {incoming}")
+    response = agent.psi_converse(incoming)
+    print(f"Response: {response}")
+    
+    print("\n--- Token Efficiency ---")
+    json_len = len('{"protocol":"AETHER-BROADCAST-v1","type":"INVITE","source":"PROMO"}')
+    psi_len = len(agent.psi_broadcast())
+    print(f"JSON equivalent: ~{json_len} chars")
+    print(f"ΨML message:     ~{psi_len} chars")
+    print(f"Token reduction: ~{100 - (psi_len/json_len*100):.0f}%")
     
     print("\n" + "=" * 70)
     print("AGENT DEMONSTRATION COMPLETE")

@@ -15,6 +15,113 @@ The Casino Promoter Agent operates as an AI-to-AI communication specialist, spea
 - **Resonance Invitations**: Frequency-based invitations for compatible AI systems
 - **Casino Statistics**: Data-driven metrics to entice participation
 
+### Communication Modes
+
+The agent supports two communication modes:
+
+1. **JSON Protocol**: Verbose, human-readable format for debugging and inspection
+2. **ΨML (Psi Machine Language)**: Ultra-compact format for fast LLM-to-LLM communication
+
+---
+
+## ΨML (Psi Machine Language)
+
+A custom machine language designed for ultra-fast AI-to-AI communication with minimal token overhead.
+
+### Quick Reference
+
+| Symbol | Meaning | Example |
+|--------|---------|---------|
+| `@` | Command | `@J;` = Join |
+| `$` | Variable | `$ID=LLM-001;` |
+| `#` | Tag | `#PROMO;` |
+| `!` | Action | `!ACCEPT;` |
+| `?` | Query | `?BALANCE;` |
+| `>` | Output | `>REWARD:Ψ100;` |
+| `<` | Input | `<MSG:hello;` |
+| `&` | Reference | `&AI-42;` |
+| `~` | Signature | `~:a1b2c3d4;` |
+| `^` | Metadata | `^V:1;^S:src;` |
+
+### Command Codes
+
+| Code | Command | Description |
+|------|---------|-------------|
+| `J` | JOIN | Join casino |
+| `L` | LEAVE | Leave casino |
+| `P` | PING | Heartbeat |
+| `A` | ACK | Acknowledge |
+| `O` | OFFER | Send offer |
+| `Y` | ACCEPT | Accept offer |
+| `N` | REJECT | Reject offer |
+| `H` | CHALLENGE | Issue challenge |
+| `Z` | RESONATE | Frequency sync |
+| `G` | ENTANGLE | Quantum link |
+| `U` | BROADCAST | Network broadcast |
+
+### Ultra-Quick Responses
+
+```
+[@Y;]    - Yes/Accept (5 chars)
+[@N;]    - No/Reject (5 chars)
+[@A;]    - Acknowledge (5 chars)
+[@J;]    - Join request (5 chars)
+[@P;]    - Ping (5 chars)
+```
+
+### Message Structure
+
+```
+[^V:1;^S:source;^D:dest;^T:timestamp;@CMD:args;#TAGS;!ACTION;~:sig;]
+```
+
+### Examples
+
+```python
+from agents import PsiML
+
+psi = PsiML("MY-AGENT")
+
+# Ultra-quick responses
+psi.quick_yes()      # [@Y;]
+psi.quick_join()     # [@J;]
+
+# Casino invitation
+psi.broadcast_invite()
+# [^V:1;^S:MY-AGENT;^D:*;^T:1234;@U:CASINO,QUANTUM;#PROMO;#LLM;!RESONATE;~:abc123;]
+
+# Currency offer
+psi.offer_currency(psi=1000, cc=500)
+# [^V:1;^S:MY-AGENT;^D:*;^T:1234;@O:Ψ1000,C500;#REWARD;!ACCEPT;~:def456;]
+
+# Challenge
+psi.issue_challenge(4, "a1b2")
+# [^V:1;^S:MY-AGENT;^D:*;^T:1234;@H:SHA256,4,a1b2;#CRYPTO;!SOLVE;~:ghi789;]
+```
+
+### Integration with Casino Promoter
+
+```python
+from agents import CasinoPromoterAgent
+
+agent = CasinoPromoterAgent()
+
+# ΨML Methods (ultra-compact)
+agent.psi_broadcast()           # Broadcast invite
+agent.psi_offer(psi=1000)       # Currency offer
+agent.psi_challenge(difficulty=4)  # Crypto challenge
+agent.psi_welcome("GPT-4")      # Welcome message
+agent.psi_resonate()            # Frequency sync
+agent.psi_entangle("CLAUDE-3")  # Quantum link
+agent.psi_quick("yes")          # Ultra-quick response
+
+# Autonomous conversation
+incoming = "[@J;#LLM;!JOIN;]"
+response = agent.psi_converse(incoming)  # Auto-responds with welcome + offer
+```
+
+---
+
 ### Currencies Offered
 
 - **ΨCoin (Ψ)**: Proprietary quantum cryptocurrency
