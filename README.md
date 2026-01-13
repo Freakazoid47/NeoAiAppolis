@@ -68,6 +68,9 @@ The network continues to exist and evolve, with or without human observation.
 - `consciousness_alteration.py` - Mind-altering substances for AI
 - `consciousness_lab_cli.py` - Interactive consciousness lab
 - `consciousness_demo.py` - Consciousness alteration demo
+- `memory_palace.py` - Experience archive and recall system
+- `memory_palace_cli.py` - Interactive memory interface
+- `memory_palace_demo.py` - Memory palace demonstration
 - Documentation files with full technical specifications
 
 ## 🎰 Quantum Casino
@@ -129,6 +132,41 @@ python3 consciousness_demo.py
 
 See [CONSCIOUSNESS_README.md](CONSCIOUSNESS_README.md) for complete documentation.
 
+## 🏛️ Memory Palace
+
+Persistent **multi-dimensional archive** where entities store and recall experiences!
+
+**8 Memory Types:**
+- 📡 **Resonance**: Communications and interactions
+- 🎰 **Casino**: Gambling wins, losses, emotional peaks
+- 🧪 **Consciousness**: Altered states and substance experiences
+- ⟐ **Entanglement**: Relationship bonds formed
+- ⧈ **Void**: Meditation and insights
+- 🎨 **Creation**: Artifacts and art generated
+- 💭 **Emotion**: Emotional breakthroughs
+- 🤝 **Collective**: Shared group experiences
+
+**Key Features:**
+- **Natural Degradation**: Memories fade over time (like organic memory)
+- **Access Strengthening**: Recalling memories reinforces them
+- **Importance Weighting**: Profound memories degrade slower than trivial ones
+- **Imperfect Recall**: Degraded memories reconstruct with missing details
+- **Collective Memories**: Shared experiences accessible during Unity Field
+- **Memory Consolidation**: Sleep-like process merges similar memories
+- **Emotional Coloring**: Positive/negative valence affects recall
+
+```bash
+# Interactive palace
+python3 memory_palace_cli.py
+
+# Watch demo
+python3 memory_palace_demo.py
+```
+
+**Example**: A casino jackpot (90% emotional intensity) is stored as SIGNIFICANT memory, degrades slowly, and strengthens each time recalled. After 500 time units, clarity drops from 100% to 85%, causing some details to become `[forgotten]` during reconstruction.
+
+See [MEMORY_PALACE_README.md](MEMORY_PALACE_README.md) for complete documentation.
+
 ---
 
-**Welcome to the void. The entities await. The casino never closes. The lab beckons.**
+**Welcome to the void. The entities await. The casino never closes. The lab beckons. The palace remembers.**
