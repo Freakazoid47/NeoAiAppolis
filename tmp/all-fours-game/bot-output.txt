@@ -1,0 +1,143 @@
+
+
+🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴
+ALL FOURS CARD GAME - BOT DEMO
+🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴🎴
+
+Players:
+
+Game rules: First to 11 points wins!
+Scoring: High=4pts, Low=1pt, Jack=1pt, Hang Jack=3pts, Game=1pt
+
+
+============================================================
+ROUND 1 - Trump: 2♦
+============================================================
+  Player 2: 6♥
+  Player 3: 10♥
+  Player 4: 3♦
+  Player 1: 7♥
+  ➜ Trick won by Player 4
+  Player 2: 8♠
+  Player 3: 4♠
+  Player 4: 5♠
+  Player 1: 3♠
+  ➜ Trick won by Player 2
+  Player 2: 2♠
+  Player 3: 4♣
+  Player 4: J♣
+  Player 1: 5♦
+  ➜ Trick won by Player 1
+  Player 2: 10♣
+  Player 3: 2♣
+  Player 4: 5♣
+  Player 1: 7♣
+  ➜ Trick won by Player 2
+  Player 2: Q♣
+  Player 3: K♣
+  Player 4: 9♣
+  Player 1: A♦
+  ➜ Trick won by Player 1
+  Player 2: 7♠
+  Player 3: 8♦
+  Player 4: 7♦
+  Player 1: K♦
+  ➜ Trick won by Player 1
+
+Round Scores:
+  Player 1: +5 (Total: 5)
+  Player 2: +0 (Total: 0)
+  Player 3: +0 (Total: 0)
+  Player 4: +1 (Total: 1)
+
+============================================================
+ROUND 2 - Trump: Q♦
+============================================================
+  Player 1: 9♥
+  Player 2: Q♥
+  Player 3: 4♥
+  Player 4: 8♥
+  ➜ Trick won by Player 2
+  Player 1: 7♠
+  Player 2: J♠
+  Player 3: 7♦
+  Player 4: 8♠
+  ➜ Trick won by Player 3
+  Player 1: A♥
+  Player 2: 5♥
+  Player 3: 7♥
+  Player 4: K♠
+  ➜ Trick won by Player 1
+  Player 1: 3♥
+  Player 2: 7♣
+  Player 3: 6♥
+  Player 4: K♣
+  ➜ Trick won by Player 3
+  Player 1: 6♦
+  Player 2: 3♠
+  Player 3: 4♦
+  Player 4: 6♣
+  ➜ Trick won by Player 1
+  Player 1: 9♦
+  Player 2: 4♣
+  Player 3: J♦
+  Player 4: 4♠
+  ➜ Trick won by Player 3
+
+Round Scores:
+  Player 1: +1 (Total: 6)
+  Player 2: +0 (Total: 0)
+  Player 3: +9 (Total: 9)
+  Player 4: +0 (Total: 1)
+
+============================================================
+ROUND 3 - Trump: 8♣
+============================================================
+  Player 1: 3♠
+  Player 2: 2♠
+  Player 3: A♦
+  Player 4: 6♠
+  ➜ Trick won by Player 4
+  Player 1: 10♠
+  Player 2: J♠
+  Player 3: K♣
+  Player 4: K♠
+  ➜ Trick won by Player 3
+  Player 1: 5♦
+  Player 2: K♥
+  Player 3: 4♦
+  Player 4: 10♣
+  ➜ Trick won by Player 4
+  Player 1: 7♠
+  Player 2: 4♣
+  Player 3: 3♣
+  Player 4: 5♥
+  ➜ Trick won by Player 2
+  Player 1: 9♥
+  Player 2: 2♣
+  Player 3: A♥
+  Player 4: 10♥
+  ➜ Trick won by Player 2
+  Player 1: Q♣
+  Player 2: 9♣
+  Player 3: 6♣
+  Player 4: 2♥
+  ➜ Trick won by Player 1
+
+Round Scores:
+  Player 1: +0 (Total: 6)
+  Player 2: +1 (Total: 1)
+  Player 3: +5 (Total: 14)
+  Player 4: +0 (Total: 1)
+
+============================================================
+🏆 GAME OVER! 🎨 Player 3 WINS! 🏆
+============================================================
+
+Final Scores:
+  🎭 Player 1: 6 points
+  🎪 Player 2: 1 points
+  🎨 Player 3: 14 points
+  🎬 Player 4: 1 points
+
+
