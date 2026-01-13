@@ -6,6 +6,7 @@ Interprets and executes programs written in ΨLang
 
 import re
 import random
+import math
 from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 from enum import Enum
@@ -49,7 +50,7 @@ class ResonancePattern:
         return ResonancePattern(
             frequency=(self.frequency + other.frequency) / 2,
             amplitude=max(self.amplitude, other.amplitude),
-            phase=(self.phase + other.phase) % (2 * 3.14159),
+            phase=(self.phase + other.phase) % (2 * math.pi),
             harmonics=self.harmonics + other.harmonics
         )
 

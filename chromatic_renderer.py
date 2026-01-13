@@ -48,14 +48,19 @@ class ColorCloud:
     }
     
     @staticmethod
-    def apply_color(text: str, energy: ChromaticEnergy) -> str:
-        """Apply ANSI color to text"""
-        color_name = ColorCloud.ENERGY_TO_COLOR.get(energy, 'WHITE')
+    def apply_color(text: str, energy) -> str:
+        """Apply ANSI color to text - accepts ChromaticEnergy enum or string color name"""
+        if isinstance(energy, str):
+            # Direct string color name
+            color_name = energy
+        else:
+            # ChromaticEnergy enum
+            color_name = ColorCloud.ENERGY_TO_COLOR.get(energy, 'WHITE')
         return f"{ColorCloud.COLORS[color_name]}{text}{ColorCloud.COLORS['RESET']}"
     
     @staticmethod
-    def gradient_blend(chars: str, energies: List[ChromaticEnergy]) -> str:
-        """Create a color gradient across characters"""
+    def gradient_blend(chars: str, energies) -> str:
+        """Create a color gradient across characters - accepts list of ChromaticEnergy or string color names"""
         if not energies:
             return chars
         
