@@ -1,0 +1,423 @@
+/* NeoAiAppolis Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #00d4ff;
+    --secondary-color: #7c3aed;
+    --dark-bg: #0a0e27;
+    --darker-bg: #050811;
+    --text-light: #e0e7ff;
+    --text-dim: #94a3b8;
+    --accent-green: #10b981;
+    --accent-purple: #a855f7;
+    --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-2: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+/* Header & Navigation */
+header {
+    background-color: var(--darker-bg);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 2px solid var(--primary-color);
+    box-shadow: 0 4px 6px rgba(0, 212, 255, 0.1);
+}
+
+nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    background: var(--gradient-2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color 0.3s;
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    color: var(--primary-color);
+}
+
+/* Hero Section */
+.hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-1);
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0,212,255,0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: moveGrid 20s linear infinite;
+}
+
+@keyframes moveGrid {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px rgba(0,212,255,0.5);
+}
+
+.tagline {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+}
+
+.btn-primary:hover {
+    background: #00b8e6;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,212,255,0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-light);
+    border: 2px solid var(--primary-color);
+}
+
+.btn-secondary:hover {
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    transform: translateY(-2px);
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Sections */
+section {
+    padding: 4rem 0;
+}
+
+section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    background: var(--gradient-2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+section > .container > p {
+    text-align: center;
+    margin-bottom: 3rem;
+    color: var(--text-dim);
+    font-size: 1.1rem;
+}
+
+/* About Section */
+.about {
+    background-color: var(--darker-bg);
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.about-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    transition: transform 0.3s;
+    border: 1px solid rgba(0,212,255,0.2);
+}
+
+.about-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 30px rgba(0,212,255,0.2);
+}
+
+.about-card .icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.about-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+/* Create Section */
+.creation-interface {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .creation-interface {
+        grid-template-columns: 1fr;
+    }
+}
+
+.editor, .output {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(0,212,255,0.2);
+}
+
+.editor h3, .output h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+#aidl-editor {
+    width: 100%;
+    min-height: 300px;
+    background: var(--darker-bg);
+    color: var(--text-light);
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    resize: vertical;
+}
+
+#aidl-output {
+    min-height: 300px;
+    background: var(--darker-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0,212,255,0.3);
+    white-space: pre-wrap;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+/* Gallery Section */
+.gallery {
+    background-color: var(--darker-bg);
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.gallery-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(0,212,255,0.2);
+    transition: all 0.3s;
+}
+
+.gallery-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 30px rgba(0,212,255,0.2);
+    transform: translateY(-5px);
+}
+
+.gallery-item h4 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.gallery-item .creator {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.gallery-item .content {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--darker-bg);
+    border-radius: 8px;
+}
+
+.ascii-art {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    line-height: 1.2;
+}
+
+/* AIDL Section */
+.aidl-info {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(0,212,255,0.2);
+    margin-top: 2rem;
+}
+
+.aidl-info h3 {
+    color: var(--primary-color);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.aidl-info h3:first-child {
+    margin-top: 0;
+}
+
+.aidl-info ul {
+    list-style-position: inside;
+    margin-left: 1rem;
+}
+
+.aidl-info li {
+    margin-bottom: 0.5rem;
+}
+
+.aidl-info pre {
+    background: var(--darker-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid rgba(0,212,255,0.3);
+}
+
+.aidl-info code {
+    font-family: 'Courier New', monospace;
+    color: var(--accent-green);
+    font-size: 0.9rem;
+}
+
+/* Footer */
+footer {
+    background-color: var(--darker-bg);
+    padding: 2rem 0;
+    text-align: center;
+    border-top: 2px solid var(--primary-color);
+    margin-top: 4rem;
+}
+
+footer p {
+    margin-bottom: 0.5rem;
+    color: var(--text-dim);
+}
+
+.footer-links {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.footer-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--accent-green);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .tagline {
+        font-size: 1.2rem;
+    }
+    
+    .nav-links {
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    section h2 {
+        font-size: 2rem;
+    }
+}
