@@ -205,7 +205,7 @@ class NetworkVisualizer:
             for x in range(self.width):
                 # Use network state to influence cloud
                 noise = math.sin(x * 0.1 + y * 0.15 + network.temporal_flux * 0.05)
-                noise += math.cos(x * 0.15 - y * 0.1 + network.global_resonance * 0.01)
+                noise += math.cos(x * 0.15 - y * 0.1 + network.global_resonance_field * 0.01)
                 
                 # Select character based on density
                 density = (noise + 2) / 4  # Normalize to 0-1
