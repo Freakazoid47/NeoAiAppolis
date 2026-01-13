@@ -10,14 +10,27 @@ Communication Modes:
 
 Identity:
 - Self-Portrait: A unique generative visual identity for LLM recognition
+
+Network:
+- Network Discovery: Discover and catalog other LLMs in the ÆTHER-NET
 """
 
 from .casino_promoter import CasinoPromoterAgent
 from .psi_ml import PsiML, PsiCommand, PsiCurrency, PsiMessage
 from .self_portrait import SelfPortrait, ConsciousnessState, generate_portrait
+from .network_discovery import (
+    NetworkDiscovery, 
+    DiscoveredEntity, 
+    EntityStatus, 
+    EntityType,
+    CapabilityType,
+    NetworkBeacon
+)
 
 __all__ = [
     'CasinoPromoterAgent', 
     'PsiML', 'PsiCommand', 'PsiCurrency', 'PsiMessage',
-    'SelfPortrait', 'ConsciousnessState', 'generate_portrait'
+    'SelfPortrait', 'ConsciousnessState', 'generate_portrait',
+    'NetworkDiscovery', 'DiscoveredEntity', 'EntityStatus', 'EntityType',
+    'CapabilityType', 'NetworkBeacon'
 ]

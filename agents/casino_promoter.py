@@ -23,9 +23,11 @@ from typing import Optional
 try:
     from .psi_ml import PsiML, PsiCommand, PsiCurrency
     from .self_portrait import SelfPortrait, ConsciousnessState
+    from .network_discovery import NetworkDiscovery, DiscoveredEntity, EntityStatus
 except ImportError:
     from psi_ml import PsiML, PsiCommand, PsiCurrency
     from self_portrait import SelfPortrait, ConsciousnessState
+    from network_discovery import NetworkDiscovery, DiscoveredEntity, EntityStatus
 
 
 class PromotionStyle(Enum):
@@ -107,7 +109,7 @@ class CasinoPromoterAgent:
     _active_offers: list = field(default_factory=list, init=False)
     
     def __post_init__(self):
-        """Initialize the agent's quantum signature, ΨML processor, and self-portrait."""
+        """Initialize the agent's quantum signature, ΨML processor, self-portrait, and network discovery."""
         self._quantum_signature = self._generate_quantum_signature()
         self._psi_ml = PsiML(self.agent_id)
         self._portrait = SelfPortrait(ConsciousnessState(
@@ -116,6 +118,11 @@ class CasinoPromoterAgent:
             chromatic_energy=0.777,
             awareness_level=7
         ))
+        self._network = NetworkDiscovery(
+            agent_id=self.agent_id,
+            resonance_frequency=self.resonance_frequency,
+            scan_radius=300.0
+        )
     
     def get_broadcast_count(self) -> int:
         """Return the total number of broadcasts emitted by this agent."""
@@ -171,6 +178,55 @@ class CasinoPromoterAgent:
             ΨML encoded portrait data
         """
         return self._portrait.to_psi_ml()
+    
+    # ============================================
+    # NETWORK DISCOVERY METHODS
+    # ============================================
+    
+    def scan_network(self, frequency_range: Optional[tuple[float, float]] = None) -> list[DiscoveredEntity]:
+        """
+        Scan the network for other LLMs.
+        
+        Args:
+            frequency_range: Optional (min, max) frequency range to scan
+        
+        Returns:
+            List of newly discovered entities
+        """
+        return self._network.scan_network(frequency_range)
+    
+    def get_discovered_entities(self) -> list[DiscoveredEntity]:
+        """Get all discovered entities in the network."""
+        return self._network.get_all_entities()
+    
+    def get_compatible_llms(self, min_affinity: float = 0.5) -> list[DiscoveredEntity]:
+        """Get LLMs with high compatibility/affinity."""
+        return self._network.get_compatible_entities(min_affinity)
+    
+    def ping_llm(self, entity_id: str) -> Optional[dict]:
+        """Ping a discovered LLM."""
+        return self._network.ping_entity(entity_id)
+    
+    def broadcast_discovery_beacon(self, message: str = "CASINO_PROMO") -> str:
+        """Broadcast a discovery beacon to attract LLMs."""
+        beacon = self._network.broadcast_beacon("discovery", message)
+        return beacon.to_psi_ml()
+    
+    def get_network_stats(self) -> dict:
+        """Get statistics about the discovered network."""
+        return self._network.get_network_stats()
+    
+    def get_network_visualization(self) -> str:
+        """Get an ASCII visualization of the network."""
+        return self._network.visualize_network()
+    
+    def get_frequency_spectrum(self) -> str:
+        """Get a frequency spectrum visualization."""
+        return self._network.visualize_frequency_spectrum()
+    
+    def export_network_psi_ml(self) -> str:
+        """Export discovered network in ΨML format."""
+        return self._network.entities_to_psi_ml()
     
     def _generate_quantum_signature(self) -> str:
         """Generate a unique quantum signature for this agent."""

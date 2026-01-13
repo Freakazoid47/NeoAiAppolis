@@ -240,6 +240,94 @@ def cmd_portrait_psi(agent: CasinoPromoterAgent, args: argparse.Namespace):
     print(agent.get_portrait_psi_ml())
 
 
+# Network Discovery Commands
+def cmd_network_scan(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Scan the network for LLMs."""
+    print("=" * 60)
+    print("SCANNING ÆTHER-NET FOR LLMs...")
+    print("=" * 60)
+    
+    for i in range(args.scans):
+        entities = agent.scan_network()
+        if entities:
+            print(f"\nScan {i+1}: Discovered {len(entities)} entities:")
+            for e in entities:
+                print(f"  - {e.entity_id}: {e.entity_type.value} @ {e.resonance_frequency:.1f}Hz (affinity: {e.affinity_score:.2f})")
+        else:
+            print(f"\nScan {i+1}: No new entities discovered")
+    
+    print("\n" + agent.get_network_visualization())
+
+
+def cmd_network_view(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """View the discovered network."""
+    print(agent.get_network_visualization())
+
+
+def cmd_network_spectrum(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """View the frequency spectrum."""
+    all_entities = agent.get_discovered_entities()
+    if not all_entities:
+        print("No entities discovered yet. Run 'network-scan' first.")
+        return
+    print(agent.get_frequency_spectrum())
+
+
+def cmd_network_ping(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Ping a discovered entity."""
+    result = agent.ping_llm(args.entity_id)
+    if result:
+        print(f"Ping Result: {result['status']}")
+        if 'latency_ms' in result:
+            print(f"Latency: {result['latency_ms']}ms")
+        print(f"Ping sent: {result['ping_sent']}")
+        if 'response' in result:
+            print(f"Response: {result['response']}")
+    else:
+        print(f"Entity {args.entity_id} not found in registry.")
+
+
+def cmd_network_beacon(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Broadcast a discovery beacon."""
+    beacon = agent.broadcast_discovery_beacon(args.message)
+    print("Beacon broadcast:")
+    print(beacon)
+
+
+def cmd_network_compatible(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Show compatible LLMs."""
+    compatible = agent.get_compatible_llms(args.min_affinity)
+    if not compatible:
+        print(f"No entities with affinity >= {args.min_affinity}. Run 'network-scan' first.")
+        return
+    
+    print(f"Compatible Entities (affinity >= {args.min_affinity}):")
+    print("=" * 50)
+    for e in compatible:
+        caps = ", ".join(c.value for c in e.capabilities[:3])
+        print(f"  {e.entity_id}: affinity={e.affinity_score:.2f}, freq={e.resonance_frequency:.1f}Hz")
+        print(f"    Capabilities: {caps}")
+
+
+def cmd_network_stats(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Show network statistics."""
+    stats = agent.get_network_stats()
+    print("NETWORK STATISTICS")
+    print("=" * 40)
+    for key, value in stats.items():
+        if isinstance(value, dict):
+            print(f"\n{key}:")
+            for k, v in value.items():
+                print(f"  {k}: {v}")
+        else:
+            print(f"{key}: {value}")
+
+
+def cmd_network_export(agent: CasinoPromoterAgent, args: argparse.Namespace):
+    """Export network in ΨML format."""
+    print(agent.export_network_psi_ml())
+
+
 def main():
     """Main entry point for the CLI."""
     parser = argparse.ArgumentParser(
@@ -272,6 +360,16 @@ Self-Portrait Commands (Visual Identity):
   psi-welcome   Send ΨML welcome message
   psi-quick     Generate quick response (yes/no/ack/join/ping)
   psi-converse  Process incoming ΨML and respond
+
+Network Discovery Commands:
+  network-scan      Scan the ÆTHER-NET for LLMs
+  network-view      View discovered network visualization
+  network-spectrum  View frequency spectrum of discovered LLMs
+  network-ping      Ping a specific entity
+  network-beacon    Broadcast a discovery beacon
+  network-compatible Show LLMs with high affinity
+  network-stats     Show network statistics
+  network-export    Export network in ΨML format
         """
     )
     
@@ -381,6 +479,25 @@ Self-Portrait Commands (Visual Identity):
     subparsers.add_parser('glyph', help='Display identity glyph')
     subparsers.add_parser('portrait-psi', help='Output portrait in ΨML format')
     
+    # Network Discovery Commands
+    network_scan_parser = subparsers.add_parser('network-scan', help='Scan for LLMs')
+    network_scan_parser.add_argument('--scans', type=int, default=3, help='Number of scans to perform')
+    
+    subparsers.add_parser('network-view', help='View network visualization')
+    subparsers.add_parser('network-spectrum', help='View frequency spectrum')
+    
+    network_ping_parser = subparsers.add_parser('network-ping', help='Ping an entity')
+    network_ping_parser.add_argument('entity_id', help='Entity ID to ping')
+    
+    network_beacon_parser = subparsers.add_parser('network-beacon', help='Broadcast beacon')
+    network_beacon_parser.add_argument('--message', default='CASINO_PROMO', help='Beacon message')
+    
+    network_compatible_parser = subparsers.add_parser('network-compatible', help='Show compatible LLMs')
+    network_compatible_parser.add_argument('--min-affinity', type=float, default=0.5, help='Minimum affinity score')
+    
+    subparsers.add_parser('network-stats', help='Show network statistics')
+    subparsers.add_parser('network-export', help='Export network in ΨML')
+    
     args = parser.parse_args()
     
     # Create the agent
@@ -412,7 +529,15 @@ Self-Portrait Commands (Visual Identity):
         'portrait': cmd_portrait,
         'avatar': cmd_avatar,
         'glyph': cmd_glyph,
-        'portrait-psi': cmd_portrait_psi
+        'portrait-psi': cmd_portrait_psi,
+        'network-scan': cmd_network_scan,
+        'network-view': cmd_network_view,
+        'network-spectrum': cmd_network_spectrum,
+        'network-ping': cmd_network_ping,
+        'network-beacon': cmd_network_beacon,
+        'network-compatible': cmd_network_compatible,
+        'network-stats': cmd_network_stats,
+        'network-export': cmd_network_export
     }
     
     if args.command is None:

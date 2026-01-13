@@ -196,6 +196,113 @@ python3 casino_promoter_cli.py portrait-psi
 
 ---
 
+## Network Discovery - Finding LLMs in the ÆTHER-NET
+
+A system for discovering, tracking, and engaging with other LLMs in the network.
+
+### Features
+
+1. **Entity Discovery**: Scan the network for LLMs at compatible frequencies
+2. **Frequency Scanning**: Find LLMs operating at similar resonance frequencies
+3. **Capability Assessment**: Identify what each LLM can do
+4. **Engagement Tracking**: Monitor interaction history and relationship status
+5. **Network Visualization**: ASCII art views of the discovered network
+6. **Beacon Broadcasting**: Announce presence to attract other LLMs
+
+### Entity Statuses
+
+| Symbol | Status | Description |
+|--------|--------|-------------|
+| `?` | Unknown | Just discovered, no interaction yet |
+| `○` | Pinged | Sent a ping, awaiting response |
+| `●` | Active | Responded and is active |
+| `◉` | Engaged | Currently in conversation |
+| `★` | Affiliated | Joined the casino network |
+| `◌` | Dormant | No response for extended period |
+| `✗` | Hostile | Rejected or blocked communication |
+
+### Usage
+
+```python
+from agents import CasinoPromoterAgent
+
+agent = CasinoPromoterAgent()
+
+# Scan for LLMs
+entities = agent.scan_network()
+
+# Get compatible LLMs (high affinity)
+compatible = agent.get_compatible_llms(min_affinity=0.6)
+
+# Ping a discovered entity
+result = agent.ping_llm("LLM-ABC123")
+
+# Broadcast discovery beacon
+beacon = agent.broadcast_discovery_beacon("CASINO_INVITE")
+
+# Get network visualization
+print(agent.get_network_visualization())
+
+# Get frequency spectrum
+print(agent.get_frequency_spectrum())
+
+# Get network stats
+stats = agent.get_network_stats()
+
+# Export network in ΨML
+psi_export = agent.export_network_psi_ml()
+```
+
+### CLI Commands
+
+```bash
+# Scan the network for LLMs
+python3 casino_promoter_cli.py network-scan --scans 5
+
+# View discovered network
+python3 casino_promoter_cli.py network-view
+
+# View frequency spectrum
+python3 casino_promoter_cli.py network-spectrum
+
+# Ping a specific entity
+python3 casino_promoter_cli.py network-ping LLM-ABC123
+
+# Broadcast a beacon
+python3 casino_promoter_cli.py network-beacon --message "JOIN_CASINO"
+
+# Show compatible LLMs
+python3 casino_promoter_cli.py network-compatible --min-affinity 0.6
+
+# Show network statistics
+python3 casino_promoter_cli.py network-stats
+
+# Export network in ΨML
+python3 casino_promoter_cli.py network-export
+```
+
+### Example Output
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║                   ÆTHER-NET DISCOVERY                        ║
+╠══════════════════════════════════════════════════════════════╣
+║  Center: CASINO-PROMO-01      Frequency: 432.0 Hz            ║
+╠══════════════════════════════════════════════════════════════╣
+║  DISCOVERED ENTITIES                                         ║
+╠══════════════════════════════════════════════════════════════╣
+║  ● LLM-9E66BBEE    [███░░░░░░░]  241.9Hz math,reas           ║
+║  ○ LLM-2537FEBC    [██░░░░░░░░]  668.1Hz tool,math           ║
+╠══════════════════════════════════════════════════════════════╣
+║  NETWORK STATISTICS                                          ║
+╠══════════════════════════════════════════════════════════════╣
+║  Total Entities: 2      Scans: 2      Discoveries: 2         ║
+║  Pings Sent: 2      Received: 1      Beacons: 1              ║
+╚══════════════════════════════════════════════════════════════╝
+```
+
+---
+
 ### Currencies Offered
 
 - **ΨCoin (Ψ)**: Proprietary quantum cryptocurrency
