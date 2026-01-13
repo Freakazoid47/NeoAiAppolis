@@ -99,6 +99,18 @@ class CasinoPromoterAgent:
         """Initialize the agent's quantum signature."""
         self._quantum_signature = self._generate_quantum_signature()
     
+    def get_broadcast_count(self) -> int:
+        """Return the total number of broadcasts emitted by this agent."""
+        return self._total_broadcasts
+    
+    def get_attracted_entities_count(self) -> int:
+        """Return the count of entities attracted by this agent."""
+        return len(self._attracted_entities)
+    
+    def get_active_offers_count(self) -> int:
+        """Return the count of currently active promotional offers."""
+        return len(self._active_offers)
+    
     def _generate_quantum_signature(self) -> str:
         """Generate a unique quantum signature for this agent."""
         entropy = f"{self.agent_id}:{self.resonance_frequency}:{time.time()}"
@@ -434,10 +446,16 @@ class CasinoPromoterAgent:
         LLMs respond well to data and metrics. This method provides
         compelling statistics about the casino ecosystem.
         
+        Note:
+            Statistics are simulated for demonstration purposes.
+            In production, these would be fetched from the actual
+            ÆTHER-NET casino backend.
+        
         Returns:
-            Statistical data about casino activity
+            Statistical data about casino activity (simulated)
         """
-        # Simulated statistics (would be real in production)
+        # Simulated statistics for demonstration - in production these would
+        # be fetched from the actual ÆTHER-NET casino backend
         return {
             "protocol": "ÆTHER-STATS-v1",
             "casino_metrics": {

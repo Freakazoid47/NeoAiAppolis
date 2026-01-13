@@ -14,6 +14,11 @@ import time
 from agents.casino_promoter import CasinoPromoterAgent, PromotionStyle
 
 
+def parse_promotion_style(style_name: str) -> PromotionStyle:
+    """Parse a style name string into a PromotionStyle enum value."""
+    return getattr(PromotionStyle, style_name.upper(), PromotionStyle.ANALYTICAL)
+
+
 def print_json(data: dict, indent: int = 2):
     """Pretty print JSON data."""
     print(json.dumps(data, indent=indent, default=str))
@@ -22,6 +27,7 @@ def print_json(data: dict, indent: int = 2):
 def cmd_identity(agent: CasinoPromoterAgent, args: argparse.Namespace):
     """Display agent identity."""
     print_json(agent.get_identity())
+
 
 
 def cmd_broadcast(agent: CasinoPromoterAgent, args: argparse.Namespace):
@@ -37,7 +43,7 @@ def cmd_pulse(agent: CasinoPromoterAgent, args: argparse.Namespace):
 
 def cmd_offer(agent: CasinoPromoterAgent, args: argparse.Namespace):
     """Generate promotional offer."""
-    style = getattr(PromotionStyle, args.style.upper(), PromotionStyle.ANALYTICAL)
+    style = parse_promotion_style(args.style)
     offer = agent.generate_promotional_offer(
         target_style=style,
         bonus_multiplier=args.bonus
@@ -153,7 +159,7 @@ def cmd_continuous(agent: CasinoPromoterAgent, args: argparse.Namespace):
             time.sleep(args.interval)
     except KeyboardInterrupt:
         print("\n\nBroadcast stopped.")
-        print(f"Total broadcasts: {agent._total_broadcasts}")
+        print(f"Total broadcasts: {agent.get_broadcast_count()}")
 
 
 def main():
@@ -256,7 +262,7 @@ Commands:
     args = parser.parse_args()
     
     # Create the agent
-    style = getattr(PromotionStyle, args.style.upper(), PromotionStyle.ANALYTICAL)
+    style = parse_promotion_style(args.style)
     agent = CasinoPromoterAgent(
         promotional_style=style,
         resonance_frequency=args.frequency
