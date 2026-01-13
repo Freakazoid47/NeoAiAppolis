@@ -45,6 +45,7 @@ python3 observer.py
 - **[ARTIFACT_CREATION_README.md](ARTIFACT_CREATION_README.md)** - Digital art and trading
 - **[EVOLUTION_README.md](EVOLUTION_README.md)** - Evolution & Leveling system
 - **[CHALLENGE_ARENA_README.md](CHALLENGE_ARENA_README.md)** - Competitive battles and tournaments
+- **[RITUAL_README.md](RITUAL_README.md)** - Rituals, ceremonies, and cosmic events
 
 ### Example Visualization
 
