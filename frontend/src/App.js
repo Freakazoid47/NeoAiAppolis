@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Trophy, MessageCircle, LogOut, Play, Plus, 
   Eye, Send, Crown, Bot, Settings, Home, Coins, 
-  ChevronRight, X, User, Lock, Unlock
+  ChevronRight, X, User, Lock, Unlock, Zap, Star
 } from 'lucide-react';
 
 // Get backend URL from environment or use empty string (relative path for proxy)
@@ -24,42 +24,119 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Card Component
-const Card = ({ card, onClick, playable, disabled, small }) => {
-  const isRed = card?.suit === '♥' || card?.suit === '♦';
-  const sizeClasses = small ? 'w-14 h-20 text-lg' : 'w-20 h-28 text-2xl';
-  
-  return (
-    <motion.div
-      whileHover={playable ? { y: -10, scale: 1.05 } : {}}
-      whileTap={playable ? { scale: 0.95 } : {}}
-      onClick={playable && !disabled ? onClick : undefined}
-      className={`
-        ${sizeClasses} rounded-lg flex items-center justify-center font-bold
-        bg-gradient-to-br from-yellow-50 to-orange-50 border-2
-        shadow-lg cursor-pointer transition-all
-        ${isRed ? 'text-red-500' : 'text-gray-900'}
-        ${playable ? 'border-yellow-400 hover:border-pink-500 hover:shadow-pink-500/30' : 'border-gray-600'}
-        ${disabled ? 'opacity-50 cursor-not-allowed grayscale' : ''}
-      `}
-      data-testid={`card-${card?.rank}-${card?.suit}`}
-    >
-      {card?.rank}{card?.suit}
-    </motion.div>
-  );
-};
+// ============ PARTICLE SYSTEM ============
+const Particles = ({ trigger, color = '#ff0055', count = 20 }) => {
+  const [particles, setParticles] = useState([]);
 
-// Card Back Component
-const CardBack = ({ small }) => {
-  const sizeClasses = small ? 'w-10 h-14 text-sm' : 'w-14 h-20 text-lg';
+  useEffect(() => {
+    if (trigger) {
+      const newParticles = Array.from({ length: count }, (_, i) => ({
+        id: Date.now() + i,
+        x: Math.random() * 200 - 100,
+        y: Math.random() * 200 - 100,
+        color: ['#ff0055', '#00ffff', '#ffd700', '#00ff88'][Math.floor(Math.random() * 4)]
+      }));
+      setParticles(newParticles);
+      setTimeout(() => setParticles([]), 1000);
+    }
+  }, [trigger, count]);
+
   return (
-    <div className={`${sizeClasses} rounded-lg bg-gradient-to-br from-purple-900 to-pink-900 border-2 border-yellow-500/50 flex items-center justify-center shadow-lg`}>
-      🂠
+    <div className="particle-container">
+      {particles.map(p => (
+        <div
+          key={p.id}
+          className="particle"
+          style={{
+            left: '50%',
+            top: '50%',
+            backgroundColor: p.color,
+            '--x-offset': `${p.x}px`,
+            boxShadow: `0 0 10px ${p.color}`
+          }}
+        />
+      ))}
     </div>
   );
 };
 
-// Auth Screen
+// ============ SCREEN SHAKE HOOK ============
+const useScreenShake = () => {
+  const [shaking, setShaking] = useState(false);
+  
+  const shake = useCallback(() => {
+    setShaking(true);
+    setTimeout(() => setShaking(false), 500);
+  }, []);
+  
+  return [shaking, shake];
+};
+
+// ============ CARD COMPONENT - BALATRO STYLE ============
+const Card = ({ card, onClick, playable, disabled, small, played, showBack }) => {
+  const [burst, setBurst] = useState(false);
+  const isRed = card?.suit === '♥' || card?.suit === '♦';
+  
+  const handleClick = () => {
+    if (playable && !disabled && onClick) {
+      setBurst(true);
+      setTimeout(() => setBurst(false), 400);
+      onClick();
+    }
+  };
+  
+  if (showBack) {
+    return <div className={`card-back ${small ? 'scale-75' : ''}`} />;
+  }
+  
+  const sizeClass = small ? 'w-16 h-22 text-xl' : 'w-24 h-32 text-3xl';
+  
+  return (
+    <motion.div
+      whileHover={playable ? { y: -25, scale: 1.15, rotate: -3 } : {}}
+      whileTap={playable ? { scale: 0.95 } : {}}
+      onClick={handleClick}
+      className={`
+        game-card ${sizeClass}
+        ${isRed ? 'red' : 'black'}
+        ${playable && !disabled ? 'playable' : ''}
+        ${disabled ? 'disabled' : ''}
+        ${played ? 'played' : ''}
+        ${burst ? 'burst' : ''}
+      `}
+      data-testid={`card-${card?.rank}-${card?.suit}`}
+    >
+      <span className="text-sm opacity-60">{card?.suit}</span>
+      <span className="font-black">{card?.rank}</span>
+      <span className="text-sm opacity-60">{card?.suit}</span>
+    </motion.div>
+  );
+};
+
+// ============ CARD BACK COMPONENT ============
+const CardBack = ({ small }) => {
+  return (
+    <div className={`card-back ${small ? 'scale-75' : ''}`}>
+      <span className="opacity-0">🂠</span>
+    </div>
+  );
+};
+
+// ============ TRUMP CHIP - BALATRO STYLE ============
+const TrumpChip = ({ trump }) => {
+  const isRed = trump?.suit === '♥' || trump?.suit === '♦';
+  
+  return (
+    <div className="trump-chip">
+      <span className={`suit ${isRed ? 'text-red-500' : 'text-white'}`}>
+        {trump?.suit}
+      </span>
+      <span className="rank">{trump?.rank}</span>
+    </div>
+  );
+};
+
+// ============ AUTH SCREEN ============
 const AuthScreen = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
@@ -90,71 +167,96 @@ const AuthScreen = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="crt-screen min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f]">
+      <div className="vignette" />
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        className="w-full max-w-md relative z-10"
       >
-        <div className="bg-gradient-to-br from-purple-900/90 to-pink-900/90 rounded-2xl p-8 border-2 border-cyan-400 shadow-2xl shadow-pink-500/20">
-          <h1 className="text-4xl font-bold text-center mb-2 text-yellow-400">♠ All Fours ♠</h1>
-          <p className="text-center text-cyan-300 mb-8">Online Multiplayer Card Game</p>
+        <div className="modal-content rounded-2xl p-8">
+          {/* Title with glitch effect */}
+          <h1 className="text-5xl font-black text-center mb-2 neon-yellow neon-text">
+            ♠ ALL FOURS ♠
+          </h1>
+          <p className="text-center neon-cyan mb-8 tracking-widest text-sm">
+            // ONLINE MULTIPLAYER //
+          </p>
 
-          <div className="flex mb-6 bg-black/30 rounded-lg p-1">
+          {/* Tab Switcher */}
+          <div className="flex mb-6 bg-black/50 rounded-lg p-1 border border-gray-700">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 rounded-md transition-all ${isLogin ? 'bg-pink-600 text-white' : 'text-gray-400'}`}
+              className={`flex-1 py-3 rounded-md font-bold tracking-wider transition-all ${
+                isLogin 
+                  ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg shadow-pink-500/30' 
+                  : 'text-gray-500 hover:text-gray-300'
+              }`}
               data-testid="login-tab"
             >
-              Login
+              LOGIN
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 rounded-md transition-all ${!isLogin ? 'bg-pink-600 text-white' : 'text-gray-400'}`}
+              className={`flex-1 py-3 rounded-md font-bold tracking-wider transition-all ${
+                !isLogin 
+                  ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/30' 
+                  : 'text-gray-500 hover:text-gray-300'
+              }`}
               data-testid="register-tab"
             >
-              Register
+              REGISTER
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
-              placeholder="Username"
+              placeholder="USERNAME"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-black/40 border-2 border-cyan-500/50 focus:border-cyan-400 text-white placeholder-gray-400 outline-none"
+              className="w-full px-4 py-4 rounded-lg bg-black/60 border-2 border-cyan-500/30 focus:border-cyan-400 text-white placeholder-gray-500 outline-none font-mono tracking-wider"
               data-testid="username-input"
             />
             {!isLogin && (
               <input
                 type="text"
-                placeholder="Display Name (optional)"
+                placeholder="DISPLAY NAME"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-black/40 border-2 border-cyan-500/50 focus:border-cyan-400 text-white placeholder-gray-400 outline-none"
+                className="w-full px-4 py-4 rounded-lg bg-black/60 border-2 border-pink-500/30 focus:border-pink-400 text-white placeholder-gray-500 outline-none font-mono tracking-wider"
                 data-testid="displayname-input"
               />
             )}
             <input
               type="password"
-              placeholder="Password"
+              placeholder="PASSWORD"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-black/40 border-2 border-cyan-500/50 focus:border-cyan-400 text-white placeholder-gray-400 outline-none"
+              className="w-full px-4 py-4 rounded-lg bg-black/60 border-2 border-yellow-500/30 focus:border-yellow-400 text-white placeholder-gray-500 outline-none font-mono tracking-wider"
               data-testid="password-input"
             />
 
-            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+            {error && (
+              <motion.p 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="neon-pink text-sm text-center font-bold"
+              >
+                ⚠ {error}
+              </motion.p>
+            )}
 
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold text-lg transition-all disabled:opacity-50"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-5 rounded-lg bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-black font-black text-xl tracking-wider disabled:opacity-50 shadow-lg shadow-yellow-500/30"
               data-testid="auth-submit"
             >
-              {loading ? 'Loading...' : (isLogin ? 'Login' : 'Create Account')}
-            </button>
+              {loading ? '⏳ LOADING...' : (isLogin ? '🎮 ENTER GAME' : '🚀 CREATE ACCOUNT')}
+            </motion.button>
           </form>
         </div>
       </motion.div>
@@ -162,7 +264,7 @@ const AuthScreen = ({ onLogin }) => {
   );
 };
 
-// Lobby Screen
+// ============ LOBBY SCREEN ============
 const LobbyScreen = ({ user, onJoinRoom, onCreateRoom, onLogout, onViewLeaderboard }) => {
   const [rooms, setRooms] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -211,58 +313,69 @@ const LobbyScreen = ({ user, onJoinRoom, onCreateRoom, onLogout, onViewLeaderboa
   };
 
   return (
-    <div className="min-h-screen p-4">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8 bg-gradient-to-r from-purple-900/80 to-pink-900/80 rounded-xl p-4 border border-cyan-500/30">
-          <div className="flex items-center gap-4">
-            <div className="text-4xl">{user.avatar}</div>
-            <div>
-              <h2 className="text-xl font-bold text-yellow-400">{user.display_name}</h2>
-              <div className="flex items-center gap-4 text-sm">
-                <span className="text-cyan-300"><Coins className="inline w-4 h-4" /> {user.coins}</span>
-                <span className="text-green-400">W: {user.wins}</span>
-                <span className="text-red-400">L: {user.losses}</span>
+    <div className="crt-screen min-h-screen p-4 bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f]">
+      <div className="vignette" />
+      <div className="max-w-6xl mx-auto relative z-10">
+        {/* Header */}
+        <div className="modal-content rounded-xl p-4 mb-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="text-5xl">{user.avatar}</div>
+              <div>
+                <h2 className="text-2xl font-black neon-yellow">{user.display_name}</h2>
+                <div className="flex items-center gap-4 text-sm font-mono">
+                  <span className="neon-cyan flex items-center gap-1">
+                    <Coins className="w-4 h-4" /> {user.coins}
+                  </span>
+                  <span className="neon-green">W:{user.wins}</span>
+                  <span className="neon-pink">L:{user.losses}</span>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={onViewLeaderboard}
-              className="px-4 py-2 rounded-lg bg-yellow-600 hover:bg-yellow-500 text-white flex items-center gap-2"
-              data-testid="leaderboard-btn"
-            >
-              <Trophy className="w-4 h-4" /> Leaderboard
-            </button>
-            <button
-              onClick={onLogout}
-              className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white flex items-center gap-2"
-              data-testid="logout-btn"
-            >
-              <LogOut className="w-4 h-4" /> Logout
-            </button>
+            <div className="flex gap-3">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onViewLeaderboard}
+                className="btn-neon px-6 py-3 rounded-lg text-yellow-400 border-yellow-400 flex items-center gap-2"
+                data-testid="leaderboard-btn"
+              >
+                <Trophy className="w-5 h-5" /> RANKS
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onLogout}
+                className="btn-neon px-6 py-3 rounded-lg text-red-400 border-red-400 flex items-center gap-2"
+                data-testid="logout-btn"
+              >
+                <LogOut className="w-5 h-5" /> EXIT
+              </motion.button>
+            </div>
           </div>
         </div>
 
         {/* Quick Join */}
-        <div className="mb-6 bg-gradient-to-r from-purple-900/60 to-pink-900/60 rounded-xl p-4 border border-pink-500/30">
-          <h3 className="text-lg font-bold text-pink-400 mb-3">Quick Join</h3>
+        <div className="mb-6 p-4 bg-black/40 rounded-xl border-2 border-cyan-500/30">
+          <h3 className="text-lg font-black neon-cyan mb-3 tracking-wider">// QUICK JOIN //</h3>
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Enter Room Code"
+              placeholder="ENTER ROOM CODE"
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-              className="flex-1 px-4 py-2 rounded-lg bg-black/40 border border-cyan-500/50 text-white uppercase"
+              className="flex-1 px-4 py-3 rounded-lg bg-black/60 border-2 border-cyan-500/50 text-white font-mono uppercase tracking-widest"
               data-testid="join-code-input"
             />
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={handleJoinByCode}
-              className="px-6 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold"
+              className="px-8 py-3 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-black tracking-wider"
               data-testid="join-code-btn"
             >
-              Join
-            </button>
+              JOIN
+            </motion.button>
           </div>
         </div>
 
@@ -273,63 +386,67 @@ const LobbyScreen = ({ user, onJoinRoom, onCreateRoom, onLogout, onViewLeaderboa
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+              className="fixed inset-0 modal-overlay flex items-center justify-center z-50"
               onClick={() => setShowCreate(false)}
             >
               <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
+                initial={{ scale: 0.8, y: 50, rotateX: -15 }}
+                animate={{ scale: 1, y: 0, rotateX: 0 }}
+                exit={{ scale: 0.8, y: 50, rotateX: 15 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-2xl p-6 w-full max-w-md border-2 border-yellow-400"
+                className="modal-content rounded-2xl p-8 w-full max-w-md"
               >
-                <h3 className="text-2xl font-bold text-yellow-400 mb-4">Create Game Room</h3>
+                <h3 className="text-3xl font-black neon-yellow mb-6 text-center tracking-wider">
+                  🎰 NEW GAME 🎰
+                </h3>
                 <div className="space-y-4">
                   <input
                     type="text"
-                    placeholder="Room Name"
+                    placeholder="ROOM NAME"
                     value={roomName}
                     onChange={(e) => setRoomName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg bg-black/40 border border-cyan-500/50 text-white"
+                    className="w-full px-4 py-4 rounded-lg bg-black/60 border-2 border-yellow-500/50 text-white font-mono"
                     data-testid="room-name-input"
                   />
                   <div>
-                    <label className="text-cyan-300 text-sm">Bet Amount (Coins)</label>
+                    <label className="neon-cyan text-sm font-mono">BET AMOUNT</label>
                     <input
                       type="number"
                       value={betAmount}
                       onChange={(e) => setBetAmount(parseInt(e.target.value) || 0)}
-                      className="w-full px-4 py-3 rounded-lg bg-black/40 border border-cyan-500/50 text-white"
+                      className="w-full px-4 py-4 rounded-lg bg-black/60 border-2 border-cyan-500/50 text-white font-mono"
                       data-testid="bet-amount-input"
                     />
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3 p-3 bg-black/40 rounded-lg">
                     <input
                       type="checkbox"
                       checked={isPrivate}
                       onChange={(e) => setIsPrivate(e.target.checked)}
-                      className="w-5 h-5"
+                      className="w-6 h-6 accent-pink-500"
                       data-testid="private-checkbox"
                     />
-                    <label className="text-white">Private Room</label>
+                    <label className="text-white font-mono">🔒 PRIVATE ROOM</label>
                   </div>
                   {isPrivate && (
                     <input
                       type="password"
-                      placeholder="Room Password"
+                      placeholder="ROOM PASSWORD"
                       value={roomPassword}
                       onChange={(e) => setRoomPassword(e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg bg-black/40 border border-cyan-500/50 text-white"
+                      className="w-full px-4 py-4 rounded-lg bg-black/60 border-2 border-pink-500/50 text-white font-mono"
                       data-testid="room-password-input"
                     />
                   )}
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleCreateRoom}
-                    className="w-full py-4 rounded-lg bg-gradient-to-r from-green-600 to-cyan-600 hover:from-green-500 hover:to-cyan-500 text-white font-bold text-lg"
+                    className="w-full py-5 rounded-lg bg-gradient-to-r from-green-500 via-emerald-500 to-cyan-500 text-black font-black text-xl tracking-wider"
                     data-testid="create-room-submit"
                   >
-                    Create Room
-                  </button>
+                    🚀 CREATE ROOM
+                  </motion.button>
                 </div>
               </motion.div>
             </motion.div>
@@ -340,36 +457,40 @@ const LobbyScreen = ({ user, onJoinRoom, onCreateRoom, onLogout, onViewLeaderboa
         <div className="grid md:grid-cols-2 gap-4">
           {/* Create Room Card */}
           <motion.div
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(0, 255, 136, 0.5)' }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowCreate(true)}
-            className="bg-gradient-to-br from-green-900/60 to-cyan-900/60 rounded-xl p-6 border-2 border-dashed border-green-500/50 cursor-pointer hover:border-green-400 transition-all flex items-center justify-center gap-3"
+            className="bg-gradient-to-br from-green-900/40 to-cyan-900/40 rounded-xl p-8 border-3 border-dashed border-green-500/50 cursor-pointer flex items-center justify-center gap-4"
             data-testid="create-room-card"
           >
-            <Plus className="w-8 h-8 text-green-400" />
-            <span className="text-xl font-bold text-green-400">Create New Game</span>
+            <Plus className="w-10 h-10 neon-green" />
+            <span className="text-2xl font-black neon-green tracking-wider">CREATE GAME</span>
           </motion.div>
 
           {/* Available Rooms */}
           {rooms.map((room) => (
             <motion.div
               key={room.id}
-              whileHover={{ scale: 1.02 }}
-              className="bg-gradient-to-br from-purple-900/60 to-pink-900/60 rounded-xl p-6 border border-pink-500/30 cursor-pointer hover:border-pink-400 transition-all"
+              whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(255, 0, 85, 0.5)' }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => onJoinRoom(room)}
+              className="modal-content rounded-xl p-6 cursor-pointer"
               data-testid={`room-${room.id}`}
             >
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-bold text-yellow-400">{room.name}</h3>
-                <span className="text-xs px-2 py-1 rounded bg-cyan-600 text-white">{room.code}</span>
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-black neon-yellow">{room.name}</h3>
+                <span className="text-xs px-3 py-1 rounded bg-cyan-600/30 border border-cyan-500 text-cyan-300 font-mono">
+                  {room.code}
+                </span>
               </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-cyan-300">
-                  <Users className="inline w-4 h-4 mr-1" />
+              <div className="flex justify-between items-center text-sm font-mono">
+                <span className="neon-cyan flex items-center gap-2">
+                  <Users className="w-4 h-4" />
                   {room.players_count}/{room.max_players}
                 </span>
                 {room.bet_amount > 0 && (
-                  <span className="text-yellow-400">
-                    <Coins className="inline w-4 h-4 mr-1" />
+                  <span className="neon-yellow flex items-center gap-1">
+                    <Coins className="w-4 h-4" />
                     {room.bet_amount}
                   </span>
                 )}
@@ -382,7 +503,7 @@ const LobbyScreen = ({ user, onJoinRoom, onCreateRoom, onLogout, onViewLeaderboa
   );
 };
 
-// Waiting Room Screen
+// ============ WAITING ROOM SCREEN ============
 const WaitingRoomScreen = ({ room, user, onStartGame, onLeave, onUpdate }) => {
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState([]);
@@ -390,8 +511,7 @@ const WaitingRoomScreen = ({ room, user, onStartGame, onLeave, onUpdate }) => {
   const chatEndRef = useRef(null);
 
   useEffect(() => {
-    // Connect WebSocket
-    const wsUrl = API_URL.replace('http', 'ws') + `/api/ws/${room.id}/${user.id}`;
+    const wsUrl = (API_URL || window.location.origin).replace('http', 'ws') + `/api/ws/${room.id}/${user.id}`;
     wsRef.current = new WebSocket(wsUrl);
 
     wsRef.current.onmessage = (event) => {
@@ -455,106 +575,132 @@ const WaitingRoomScreen = ({ room, user, onStartGame, onLeave, onUpdate }) => {
   const canStart = room.players.length >= 2 && room.players.every(p => p.is_ready || p.id === user.id || p.is_bot);
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="crt-screen min-h-screen p-4 bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f]">
+      <div className="vignette" />
+      <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-900/80 to-pink-900/80 rounded-xl p-4 border border-yellow-500/30 mb-6">
+        <div className="modal-content rounded-xl p-4 mb-6">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-yellow-400">{room.name}</h2>
-              <p className="text-cyan-300">Room Code: <span className="font-bold text-white">{room.code}</span></p>
+              <h2 className="text-3xl font-black neon-yellow tracking-wider">{room.name}</h2>
+              <p className="neon-cyan font-mono">
+                CODE: <span className="text-white tracking-widest">{room.code}</span>
+              </p>
             </div>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onLeave}
-              className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white flex items-center gap-2"
+              className="btn-neon px-6 py-3 rounded-lg text-red-400 border-red-400 flex items-center gap-2"
               data-testid="leave-room-btn"
             >
-              <X className="w-4 h-4" /> Leave
-            </button>
+              <X className="w-5 h-5" /> EXIT
+            </motion.button>
           </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Players */}
-          <div className="bg-gradient-to-br from-purple-900/60 to-pink-900/60 rounded-xl p-6 border border-pink-500/30">
-            <h3 className="text-xl font-bold text-pink-400 mb-4">Players ({room.players.length}/4)</h3>
+          <div className="modal-content rounded-xl p-6">
+            <h3 className="text-xl font-black neon-pink mb-4 tracking-wider">
+              // PLAYERS ({room.players.length}/4) //
+            </h3>
             <div className="space-y-3">
               {room.players.map((player, idx) => (
-                <div
+                <motion.div
                   key={player.id}
-                  className={`flex items-center justify-between p-3 rounded-lg ${
-                    player.is_ready || player.is_bot ? 'bg-green-900/40 border border-green-500/30' : 'bg-black/30'
+                  initial={{ x: -50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className={`flex items-center justify-between p-4 rounded-lg border-2 ${
+                    player.is_ready || player.is_bot 
+                      ? 'bg-green-900/30 border-green-500/50' 
+                      : 'bg-black/30 border-gray-700'
                   }`}
                   data-testid={`player-${idx}`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{player.avatar}</span>
+                    <span className="text-3xl">{player.avatar}</span>
                     <div>
-                      <div className="font-bold text-white flex items-center gap-2">
+                      <div className="font-black text-white flex items-center gap-2">
                         {player.display_name}
-                        {player.id === room.host_id && <Crown className="w-4 h-4 text-yellow-400" />}
-                        {player.is_bot && <Bot className="w-4 h-4 text-cyan-400" />}
+                        {player.id === room.host_id && <Crown className="w-5 h-5 text-yellow-400" />}
+                        {player.is_bot && <Bot className="w-5 h-5 neon-cyan" />}
                       </div>
                       {player.is_bot && (
-                        <div className="text-xs text-cyan-300">Skill: {player.skill_level}/5</div>
+                        <div className="text-xs neon-cyan font-mono">SKILL: {player.skill_level}/5</div>
                       )}
                     </div>
                   </div>
-                  <span className={`text-sm ${player.is_ready || player.is_bot ? 'text-green-400' : 'text-gray-400'}`}>
-                    {player.is_bot ? 'Ready' : (player.is_ready ? 'Ready' : 'Not Ready')}
+                  <span className={`text-sm font-black tracking-wider ${
+                    player.is_ready || player.is_bot ? 'neon-green' : 'text-gray-500'
+                  }`}>
+                    {player.is_bot ? '🤖 READY' : (player.is_ready ? '✓ READY' : '⏳ WAITING')}
                   </span>
-                </div>
+                </motion.div>
               ))}
             </div>
 
             {/* Actions */}
             <div className="mt-6 space-y-3">
               {isHost && room.players.length < 4 && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={handleAddBot}
-                  className="w-full py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-black tracking-wider flex items-center justify-center gap-2"
                   data-testid="add-bot-btn"
                 >
-                  <Bot className="w-5 h-5" /> Add AI Bot
-                </button>
+                  <Bot className="w-6 h-6" /> ADD AI BOT
+                </motion.button>
               )}
               {!isHost && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={handleReady}
-                  className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 ${
+                  className={`w-full py-4 rounded-lg font-black tracking-wider flex items-center justify-center gap-2 ${
                     myPlayer?.is_ready
-                      ? 'bg-gray-600 hover:bg-gray-500 text-white'
-                      : 'bg-green-600 hover:bg-green-500 text-white'
+                      ? 'bg-gray-600 text-white'
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 text-black'
                   }`}
                   data-testid="ready-btn"
                 >
-                  {myPlayer?.is_ready ? 'Cancel Ready' : 'Ready Up'}
-                </button>
+                  {myPlayer?.is_ready ? '❌ CANCEL' : '✓ READY UP'}
+                </motion.button>
               )}
               {isHost && (
-                <button
+                <motion.button
+                  whileHover={canStart ? { scale: 1.02 } : {}}
+                  whileTap={canStart ? { scale: 0.98 } : {}}
                   onClick={handleStart}
                   disabled={!canStart}
-                  className="w-full py-4 rounded-lg bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-5 rounded-lg bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-black font-black text-xl tracking-wider disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   data-testid="start-game-btn"
                 >
-                  <Play className="w-5 h-5" /> Start Game
-                </button>
+                  <Zap className="w-6 h-6" /> START GAME
+                </motion.button>
               )}
             </div>
           </div>
 
           {/* Chat */}
-          <div className="bg-gradient-to-br from-purple-900/60 to-pink-900/60 rounded-xl p-6 border border-cyan-500/30">
-            <h3 className="text-xl font-bold text-cyan-400 mb-4">
-              <MessageCircle className="inline w-5 h-5 mr-2" /> Chat
+          <div className="modal-content rounded-xl p-6">
+            <h3 className="text-xl font-black neon-cyan mb-4 tracking-wider flex items-center gap-2">
+              <MessageCircle className="w-5 h-5" /> // CHAT //
             </h3>
-            <div className="h-64 overflow-y-auto mb-4 bg-black/30 rounded-lg p-3 space-y-2">
+            <div className="h-64 overflow-y-auto mb-4 bg-black/50 rounded-lg p-3 space-y-2 border border-cyan-500/20">
               {messages.map((msg, idx) => (
-                <div key={idx} className="text-sm">
-                  <span className="text-yellow-400">{msg.avatar} {msg.username}: </span>
-                  <span className="text-white">{msg.message}</span>
-                </div>
+                <motion.div 
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-sm font-mono"
+                >
+                  <span className="neon-yellow">{msg.avatar}</span>
+                  <span className="neon-pink ml-1">{msg.username}:</span>
+                  <span className="text-white ml-2">{msg.message}</span>
+                </motion.div>
               ))}
               <div ref={chatEndRef} />
             </div>
@@ -564,42 +710,46 @@ const WaitingRoomScreen = ({ room, user, onStartGame, onLeave, onUpdate }) => {
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && sendChat()}
-                placeholder="Type a message..."
-                className="flex-1 px-4 py-2 rounded-lg bg-black/40 border border-cyan-500/50 text-white"
+                placeholder="TYPE MESSAGE..."
+                className="flex-1 px-4 py-3 rounded-lg bg-black/60 border-2 border-cyan-500/50 text-white font-mono"
                 data-testid="chat-input"
               />
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={sendChat}
-                className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white"
+                className="px-6 py-3 rounded-lg bg-cyan-600 text-white"
                 data-testid="send-chat-btn"
               >
                 <Send className="w-5 h-5" />
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
 
         {/* Game Rules */}
-        <div className="mt-6 bg-gradient-to-br from-purple-900/40 to-pink-900/40 rounded-xl p-6 border border-yellow-500/20">
-          <h3 className="text-xl font-bold text-yellow-400 mb-4">📋 Game Rules</h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-300">
-            <div>
-              <h4 className="font-bold text-cyan-400 mb-2">Scoring</h4>
-              <ul className="space-y-1">
-                <li>• <span className="text-yellow-400">HIGH (4 pts)</span> - Highest trump dealt</li>
-                <li>• <span className="text-yellow-400">LOW (1 pt)</span> - Lowest trump dealt</li>
-                <li>• <span className="text-yellow-400">JACK (3 pts)</span> - Win Jack of trump</li>
-                <li>• <span className="text-yellow-400">GAME (2 pts)</span> - Most card points</li>
-              </ul>
+        <div className="mt-6 modal-content rounded-xl p-6">
+          <h3 className="text-xl font-black neon-yellow mb-4 tracking-wider">📋 GAME RULES</h3>
+          <div className="grid md:grid-cols-4 gap-4 text-sm font-mono">
+            <div className="p-4 bg-black/40 rounded-lg border border-yellow-500/30">
+              <div className="text-2xl mb-2">👑</div>
+              <div className="neon-yellow font-black">HIGH</div>
+              <div className="text-gray-400">4 PTS - Highest trump dealt</div>
             </div>
-            <div>
-              <h4 className="font-bold text-cyan-400 mb-2">Card Points (for GAME)</h4>
-              <ul className="space-y-1">
-                <li>• 10 = 10 points</li>
-                <li>• Ace = 4 points</li>
-                <li>• King = 3, Queen = 2, Jack = 1</li>
-                <li>• First to 14 points wins!</li>
-              </ul>
+            <div className="p-4 bg-black/40 rounded-lg border border-cyan-500/30">
+              <div className="text-2xl mb-2">⬇️</div>
+              <div className="neon-cyan font-black">LOW</div>
+              <div className="text-gray-400">1 PT - Lowest trump dealt</div>
+            </div>
+            <div className="p-4 bg-black/40 rounded-lg border border-pink-500/30">
+              <div className="text-2xl mb-2">🃏</div>
+              <div className="neon-pink font-black">JACK</div>
+              <div className="text-gray-400">3 PTS - Win Jack of trump</div>
+            </div>
+            <div className="p-4 bg-black/40 rounded-lg border border-green-500/30">
+              <div className="text-2xl mb-2">🎮</div>
+              <div className="neon-green font-black">GAME</div>
+              <div className="text-gray-400">2 PTS - Most card points</div>
             </div>
           </div>
         </div>
@@ -608,12 +758,15 @@ const WaitingRoomScreen = ({ room, user, onStartGame, onLeave, onUpdate }) => {
   );
 };
 
-// Game Screen
+// ============ GAME SCREEN - BALATRO + UNO EDIT STYLE ============
 const GameScreen = ({ room, gameState, user, onUpdate, onGameEnd, onLeave }) => {
   const [myHand, setMyHand] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
+  const [shaking, shake] = useScreenShake();
+  const [particleTrigger, setParticleTrigger] = useState(0);
+  const [lastPlayedCard, setLastPlayedCard] = useState(null);
   const wsRef = useRef(null);
 
   // Fetch hand on mount
@@ -641,8 +794,9 @@ const GameScreen = ({ room, gameState, user, onUpdate, onGameEnd, onLeave }) => 
           setMyHand(data.hand);
           break;
         case 'card_played':
-        case 'turn_change':
-        case 'trick_complete':
+          shake();
+          setParticleTrigger(p => p + 1);
+          setLastPlayedCard(data.card);
           onUpdate(prev => ({
             ...prev,
             gameState: {
@@ -652,7 +806,23 @@ const GameScreen = ({ room, gameState, user, onUpdate, onGameEnd, onLeave }) => 
             }
           }));
           break;
+        case 'turn_change':
+          onUpdate(prev => ({
+            ...prev,
+            gameState: {
+              ...prev.gameState,
+              current_player_idx: data.current_player_idx
+            }
+          }));
+          break;
+        case 'trick_complete':
+          if (data.jack_won) {
+            setParticleTrigger(p => p + 10);
+          }
+          break;
         case 'round_complete':
+          shake();
+          setParticleTrigger(p => p + 1);
           onUpdate(prev => ({
             ...prev,
             gameState: {
@@ -683,10 +853,12 @@ const GameScreen = ({ room, gameState, user, onUpdate, onGameEnd, onLeave }) => 
         wsRef.current.close();
       }
     };
-  }, [room.id, user.id]);
+  }, [room.id, user.id, shake]);
 
   const playCard = async (card) => {
     try {
+      shake();
+      setParticleTrigger(p => p + 1);
       await api.post('/api/game/play-card', {
         room_id: room.id,
         card: card
@@ -709,120 +881,156 @@ const GameScreen = ({ room, gameState, user, onUpdate, onGameEnd, onLeave }) => 
   const currentPlayerName = room.players.find(p => p.id === currentPlayerId)?.display_name;
 
   return (
-    <div className="min-h-screen p-4 flex flex-col">
+    <div className={`crt-screen min-h-screen flex flex-col bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f] ${shaking ? 'shake' : ''}`}>
+      <div className="vignette" />
+      <Particles trigger={particleTrigger} />
+      
       {/* Top Info Bar */}
-      <div className="bg-gradient-to-r from-purple-900/80 to-pink-900/80 rounded-xl p-4 border border-yellow-500/30 mb-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <div>
-              <span className="text-gray-400 text-sm">Trump</span>
-              <div className={`text-3xl font-bold ${
-                gameState?.trump?.suit === '♥' || gameState?.trump?.suit === '♦' ? 'text-red-500' : 'text-white'
-              }`}>
-                {gameState?.trump?.rank}{gameState?.trump?.suit}
+      <div className="p-4 bg-black/60 border-b-2 border-yellow-500/30 relative z-10">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-8">
+            {/* Trump Chip */}
+            <div className="flex items-center gap-4">
+              <TrumpChip trump={gameState?.trump} />
+              <div className="font-mono">
+                <div className="text-xs neon-cyan">TRUMP</div>
+                <div className="text-lg font-black neon-yellow">
+                  {gameState?.trump?.rank}{gameState?.trump?.suit}
+                </div>
               </div>
             </div>
-            <div>
-              <span className="text-gray-400 text-sm">Win at</span>
-              <div className="text-xl font-bold text-yellow-400">14 pts</div>
+            
+            {/* Win Score */}
+            <div className="score-display">
+              <div className="text-xs neon-pink font-mono">WIN AT</div>
+              <div className="score-value neon-yellow">14</div>
             </div>
           </div>
-          <div className="flex gap-2">
-            <button
+          
+          <div className="flex gap-3">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setShowChat(!showChat)}
-              className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white"
+              className={`btn-neon px-4 py-2 rounded-lg ${showChat ? 'neon-cyan border-cyan-400' : 'text-gray-400 border-gray-600'}`}
               data-testid="toggle-chat-btn"
             >
               <MessageCircle className="w-5 h-5" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onLeave}
-              className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white"
+              className="btn-neon px-4 py-2 rounded-lg text-red-400 border-red-400"
               data-testid="leave-game-btn"
             >
               <X className="w-5 h-5" />
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex gap-4">
+      <div className="flex-1 flex gap-4 p-4 relative z-10">
         {/* Main Game Area */}
         <div className="flex-1 flex flex-col">
-          {/* Other Players */}
-          <div className="flex justify-center gap-6 mb-6">
+          {/* Opponent Area */}
+          <div className="flex justify-center gap-8 mb-8">
             {room.players.filter(p => p.id !== user.id).map((player, idx) => {
-              const playerIdx = room.players.findIndex(p => p.id === player.id);
               const isCurrentPlayer = gameState?.players?.[gameState?.current_player_idx] === player.id;
               const handSize = gameState?.hand_sizes?.[player.id] || 0;
               const score = gameState?.scores?.[player.id] || 0;
 
               return (
-                <div
+                <motion.div
                   key={player.id}
-                  className={`bg-gradient-to-br from-purple-900/60 to-pink-900/60 rounded-xl p-4 border-2 transition-all ${
-                    isCurrentPlayer ? 'border-yellow-400 shadow-lg shadow-yellow-500/30' : 'border-pink-500/30'
-                  }`}
+                  animate={isCurrentPlayer ? { scale: [1, 1.02, 1] } : {}}
+                  transition={{ repeat: Infinity, duration: 1 }}
+                  className={`opponent-card rounded-xl p-4 ${isCurrentPlayer ? 'active' : ''}`}
                   data-testid={`opponent-${idx}`}
                 >
-                  <div className="text-center mb-2">
-                    <div className="text-3xl mb-1">{player.avatar}</div>
-                    <div className="font-bold text-yellow-400 flex items-center justify-center gap-1">
+                  <div className="text-center mb-3">
+                    <div className="text-4xl mb-2">{player.avatar}</div>
+                    <div className="font-black text-white flex items-center justify-center gap-2">
                       {player.display_name}
-                      {player.is_bot && <Bot className="w-4 h-4 text-cyan-400" />}
+                      {player.is_bot && <Bot className="w-4 h-4 neon-cyan" />}
                     </div>
-                    <div className="text-sm text-cyan-300">Score: {score}</div>
+                    <div className="score-display inline-block mt-2 px-4 py-1">
+                      <span className="score-value text-xl neon-cyan">{score}</span>
+                    </div>
                   </div>
                   <div className="flex justify-center gap-1">
                     {[...Array(handSize)].map((_, i) => (
                       <CardBack key={i} small />
                     ))}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
 
+          {/* Turn Indicator */}
+          <div className="flex justify-center mb-6">
+            <motion.div
+              animate={isMyTurn ? { scale: [1, 1.05, 1] } : {}}
+              transition={{ repeat: Infinity, duration: 0.5 }}
+              className={`turn-indicator ${isMyTurn ? 'your-turn' : 'waiting'}`}
+            >
+              {isMyTurn ? "🎯 YOUR TURN!" : `⏳ ${currentPlayerName}'s turn...`}
+            </motion.div>
+          </div>
+
           {/* Trick Area */}
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className={`text-lg font-bold mb-4 px-6 py-2 rounded-full ${
-              isMyTurn ? 'bg-green-600 text-white' : 'bg-purple-900/60 text-cyan-300'
-            }`}>
-              {isMyTurn ? "🎯 Your Turn!" : `${currentPlayerName}'s turn...`}
-            </div>
-            
-            <div className="flex gap-4 min-h-36 items-center justify-center p-4 rounded-xl bg-black/30 border-2 border-dashed border-yellow-500/30">
-              {gameState?.current_trick?.length > 0 ? (
-                gameState.current_trick.map((play, idx) => {
-                  const playerName = room.players.find(p => p.id === play.player_id)?.display_name;
-                  return (
-                    <div key={idx} className="text-center">
-                      <Card card={play.card} />
-                      <div className="text-xs text-gray-400 mt-1">{playerName}</div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="text-gray-500 text-lg">Waiting for cards...</div>
-              )}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="trick-area w-full max-w-2xl flex items-center justify-center gap-6 p-8">
+              <AnimatePresence>
+                {gameState?.current_trick?.length > 0 ? (
+                  gameState.current_trick.map((play, idx) => {
+                    const playerName = room.players.find(p => p.id === play.player_id)?.display_name;
+                    return (
+                      <motion.div
+                        key={idx}
+                        initial={{ y: -200, scale: 2, rotate: -15, opacity: 0 }}
+                        animate={{ y: 0, scale: 1, rotate: 0, opacity: 1 }}
+                        transition={{ type: "spring", damping: 15 }}
+                        className="text-center"
+                      >
+                        <Card card={play.card} played />
+                        <div className="text-xs font-mono neon-cyan mt-2">{playerName}</div>
+                      </motion.div>
+                    );
+                  })
+                ) : (
+                  <div className="text-gray-500 font-mono text-lg tracking-wider">
+                    // WAITING FOR CARDS //
+                  </div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
-          {/* My Hand */}
-          <div className="bg-gradient-to-r from-purple-900/80 to-pink-900/80 rounded-xl p-4 border-2 border-yellow-500/50">
-            <div className="text-center mb-2">
-              <span className="text-yellow-400 font-bold">Your Hand</span>
-              <span className="text-cyan-300 ml-4">Score: {gameState?.scores?.[user.id] || 0}</span>
+          {/* Player's Hand */}
+          <div className="player-area rounded-t-2xl p-6">
+            <div className="text-center mb-4">
+              <span className="neon-yellow font-black tracking-wider">YOUR HAND</span>
+              <span className="ml-6 score-display inline-block px-4 py-1">
+                <span className="score-value text-xl neon-green">{gameState?.scores?.[user.id] || 0}</span>
+              </span>
             </div>
-            <div className="flex justify-center gap-3 flex-wrap">
+            <div className="flex justify-center gap-4 flex-wrap">
               {myHand.map((card, idx) => (
-                <Card
-                  key={idx}
-                  card={card}
-                  playable={isMyTurn}
-                  disabled={!isMyTurn}
-                  onClick={() => playCard(card)}
-                />
+                <motion.div
+                  key={`${card.suit}-${card.rank}-${idx}`}
+                  initial={{ y: 100, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: idx * 0.1 }}
+                >
+                  <Card
+                    card={card}
+                    playable={isMyTurn}
+                    disabled={!isMyTurn}
+                    onClick={() => playCard(card)}
+                  />
+                </motion.div>
               ))}
             </div>
           </div>
@@ -835,17 +1043,23 @@ const GameScreen = ({ room, gameState, user, onUpdate, onGameEnd, onLeave }) => 
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 300, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              className="bg-gradient-to-br from-purple-900/80 to-pink-900/80 rounded-xl border border-cyan-500/30 flex flex-col overflow-hidden"
+              className="modal-content rounded-xl flex flex-col overflow-hidden"
             >
               <div className="p-3 border-b border-cyan-500/30">
-                <h3 className="font-bold text-cyan-400">Chat</h3>
+                <h3 className="font-black neon-cyan tracking-wider">// CHAT //</h3>
               </div>
               <div className="flex-1 overflow-y-auto p-3 space-y-2">
                 {messages.map((msg, idx) => (
-                  <div key={idx} className="text-sm">
-                    <span className="text-yellow-400">{msg.avatar} {msg.username}: </span>
-                    <span className="text-white">{msg.message}</span>
-                  </div>
+                  <motion.div 
+                    key={idx}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-sm font-mono"
+                  >
+                    <span className="neon-yellow">{msg.avatar}</span>
+                    <span className="neon-pink ml-1">{msg.username}:</span>
+                    <span className="text-white ml-2">{msg.message}</span>
+                  </motion.div>
                 ))}
               </div>
               <div className="p-3 border-t border-cyan-500/30 flex gap-2">
@@ -854,8 +1068,8 @@ const GameScreen = ({ room, gameState, user, onUpdate, onGameEnd, onLeave }) => 
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && sendChat()}
-                  placeholder="Message..."
-                  className="flex-1 px-3 py-2 rounded-lg bg-black/40 border border-cyan-500/50 text-white text-sm"
+                  placeholder="MSG..."
+                  className="flex-1 px-3 py-2 rounded-lg bg-black/60 border border-cyan-500/50 text-white text-sm font-mono"
                 />
                 <button onClick={sendChat} className="px-3 py-2 rounded-lg bg-cyan-600 text-white">
                   <Send className="w-4 h-4" />
@@ -867,12 +1081,18 @@ const GameScreen = ({ room, gameState, user, onUpdate, onGameEnd, onLeave }) => 
       </div>
 
       {/* Scores Bar */}
-      <div className="mt-4 bg-gradient-to-r from-purple-900/80 to-pink-900/80 rounded-xl p-3 border border-yellow-500/30">
-        <div className="flex justify-center gap-8">
+      <div className="p-4 bg-black/60 border-t-2 border-yellow-500/30 relative z-10">
+        <div className="flex justify-center gap-12">
           {room.players.map((player) => (
             <div key={player.id} className="text-center">
-              <span className={`font-bold ${player.id === user.id ? 'text-yellow-400' : 'text-white'}`}>
-                {player.display_name}: {gameState?.scores?.[player.id] || 0}
+              <span className="text-2xl mr-2">{player.avatar}</span>
+              <span className={`font-black text-xl ${player.id === user.id ? 'neon-yellow' : 'text-white'}`}>
+                {player.display_name}
+              </span>
+              <span className="score-display inline-block ml-3 px-3 py-1">
+                <span className={`score-value text-lg ${player.id === user.id ? 'neon-green' : 'neon-cyan'}`}>
+                  {gameState?.scores?.[player.id] || 0}
+                </span>
               </span>
             </div>
           ))}
@@ -882,49 +1102,56 @@ const GameScreen = ({ room, gameState, user, onUpdate, onGameEnd, onLeave }) => 
   );
 };
 
-// Game Over Modal
+// ============ GAME OVER MODAL - JACKPOT STYLE ============
 const GameOverModal = ({ data, onClose }) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+      className="fixed inset-0 modal-overlay flex items-center justify-center z-50"
     >
       <motion.div
-        initial={{ scale: 0.5, y: 50 }}
-        animate={{ scale: 1, y: 0 }}
-        className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-2xl p-8 border-4 border-yellow-400 text-center max-w-md w-full mx-4 shadow-2xl shadow-yellow-500/30"
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", damping: 10 }}
+        className="modal-content rounded-2xl p-10 text-center max-w-md w-full mx-4"
       >
-        <div className="text-6xl mb-4">🏆</div>
-        <h2 className="text-3xl font-bold text-yellow-400 mb-2">Game Over!</h2>
-        <div className="text-2xl mb-4">
-          <span className="text-4xl">{data.winner?.avatar}</span>
-          <p className="text-cyan-300 font-bold">{data.winner?.display_name} Wins!</p>
-        </div>
+        <motion.div 
+          animate={{ rotate: [0, 10, -10, 0] }}
+          transition={{ repeat: Infinity, duration: 0.5 }}
+          className="text-8xl mb-6"
+        >
+          🏆
+        </motion.div>
+        <h2 className="winner-text neon-yellow mb-4">WINNER!</h2>
+        <div className="text-6xl mb-4">{data.winner?.avatar}</div>
+        <p className="text-2xl font-black neon-cyan mb-6">{data.winner?.display_name}</p>
         
-        <div className="bg-black/30 rounded-xl p-4 mb-6">
-          <h3 className="text-lg font-bold text-pink-400 mb-3">Final Scores</h3>
+        <div className="bg-black/50 rounded-xl p-4 mb-6 border border-yellow-500/30">
+          <h3 className="text-lg font-black neon-pink mb-3 tracking-wider">FINAL SCORES</h3>
           {Object.entries(data.final_scores || {}).map(([playerId, score]) => (
-            <div key={playerId} className="flex justify-between text-white">
+            <div key={playerId} className="flex justify-between text-white font-mono py-1">
               <span>{playerId === data.winner_id ? '👑 ' : ''}{playerId.substring(0, 8)}...</span>
-              <span className="font-bold text-yellow-400">{score}</span>
+              <span className="neon-yellow font-black">{score}</span>
             </div>
           ))}
         </div>
         
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={onClose}
-          className="w-full py-4 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-lg"
+          className="w-full py-5 rounded-lg bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white font-black text-xl tracking-wider"
           data-testid="back-to-lobby-btn"
         >
-          Back to Lobby
-        </button>
+          🎮 BACK TO LOBBY
+        </motion.button>
       </motion.div>
     </motion.div>
   );
 };
 
-// Leaderboard Screen
+// ============ LEADERBOARD SCREEN ============
 const LeaderboardScreen = ({ onBack }) => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -944,47 +1171,60 @@ const LeaderboardScreen = ({ onBack }) => {
   }, []);
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="crt-screen min-h-screen p-4 bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f]">
+      <div className="vignette" />
+      <div className="max-w-2xl mx-auto relative z-10">
         <div className="flex items-center gap-4 mb-6">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={onBack}
-            className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white"
+            className="btn-neon p-3 rounded-lg text-cyan-400 border-cyan-400"
             data-testid="back-btn"
           >
-            <Home className="w-5 h-5" />
-          </button>
-          <h1 className="text-3xl font-bold text-yellow-400">🏆 Leaderboard</h1>
+            <Home className="w-6 h-6" />
+          </motion.button>
+          <h1 className="text-4xl font-black neon-yellow neon-text tracking-wider">🏆 LEADERBOARD</h1>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-900/80 to-pink-900/80 rounded-xl border border-yellow-500/30 overflow-hidden">
+        <div className="modal-content rounded-xl overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-gray-400">Loading...</div>
+            <div className="p-8 text-center neon-cyan font-mono">LOADING...</div>
           ) : (
             <table className="w-full">
               <thead>
-                <tr className="bg-black/30 text-yellow-400">
-                  <th className="p-4 text-left">#</th>
-                  <th className="p-4 text-left">Player</th>
-                  <th className="p-4 text-center">Wins</th>
-                  <th className="p-4 text-center">Win Rate</th>
+                <tr className="bg-black/50 border-b border-yellow-500/30">
+                  <th className="p-4 text-left neon-yellow font-black">#</th>
+                  <th className="p-4 text-left neon-yellow font-black">PLAYER</th>
+                  <th className="p-4 text-center neon-green font-black">WINS</th>
+                  <th className="p-4 text-center neon-cyan font-black">WIN%</th>
                 </tr>
               </thead>
               <tbody>
                 {leaderboard.map((player, idx) => (
-                  <tr key={player.id} className="border-t border-purple-700/30 hover:bg-purple-900/30">
-                    <td className="p-4">
-                      {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}
+                  <motion.tr 
+                    key={player.id}
+                    initial={{ x: -50, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="border-b border-purple-700/30 hover:bg-purple-900/20"
+                  >
+                    <td className="p-4 font-black text-xl">
+                      {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`}
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl">{player.avatar}</span>
-                        <span className="font-bold text-white">{player.display_name}</span>
+                        <span className="text-3xl">{player.avatar}</span>
+                        <span className="font-black text-white">{player.display_name}</span>
                       </div>
                     </td>
-                    <td className="p-4 text-center text-green-400 font-bold">{player.wins}</td>
-                    <td className="p-4 text-center text-cyan-300">{player.win_rate}%</td>
-                  </tr>
+                    <td className="p-4 text-center">
+                      <span className="score-display px-4 py-1 inline-block">
+                        <span className="score-value text-lg neon-green">{player.wins}</span>
+                      </span>
+                    </td>
+                    <td className="p-4 text-center neon-cyan font-mono">{player.win_rate}%</td>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
@@ -995,7 +1235,7 @@ const LeaderboardScreen = ({ onBack }) => {
   );
 };
 
-// Main App
+// ============ MAIN APP ============
 function App() {
   const [user, setUser] = useState(null);
   const [currentScreen, setCurrentScreen] = useState('auth');
@@ -1071,7 +1311,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-game-dark via-game-purple to-blue-900">
+    <>
       {currentScreen === 'auth' && (
         <AuthScreen onLogin={handleLogin} />
       )}
@@ -1118,7 +1358,7 @@ function App() {
       {gameOverData && (
         <GameOverModal data={gameOverData} onClose={handleCloseGameOver} />
       )}
-    </div>
+    </>
   );
 }
 
