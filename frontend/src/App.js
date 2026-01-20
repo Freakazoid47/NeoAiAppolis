@@ -616,8 +616,21 @@ const GameScreen = ({ room, gameState, user, onUpdate, onGameEnd, onLeave }) => 
   const [showChat, setShowChat] = useState(false);
   const wsRef = useRef(null);
 
+  // Fetch hand on mount
   useEffect(() => {
-    const wsUrl = API_URL.replace('http', 'ws') + `/api/ws/${room.id}/${user.id}`;
+    const fetchHand = async () => {
+      try {
+        const response = await api.get(`/api/game/${room.id}/hand`);
+        setMyHand(response.data.hand);
+      } catch (err) {
+        console.error('Error fetching hand:', err);
+      }
+    };
+    fetchHand();
+  }, [room.id]);
+
+  useEffect(() => {
+    const wsUrl = (API_URL || window.location.origin).replace('http', 'ws') + `/api/ws/${room.id}/${user.id}`;
     wsRef.current = new WebSocket(wsUrl);
 
     wsRef.current.onmessage = (event) => {
