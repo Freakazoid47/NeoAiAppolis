@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import EntityCard from "./EntityCard";
 import NetworkStats from "./NetworkStats";
