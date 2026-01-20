@@ -18,13 +18,31 @@ import math
 
 class AssetType(Enum):
     """Tradable AI computational assets"""
+    # Core Computing Resources
     COMPUTE = "CMPT"        # Computing Power (GHz)
     HASH = "HASH"           # Hash Power (H/s)
     MEMORY = "MEM"          # Memory Bandwidth (GB/s)
-    RESONANCE = "RES"       # Resonance Points
-    CONSCIOUSNESS = "CONS"  # Consciousness Units
     QUANTUM = "QBIT"        # Quantum Processing Units
     BANDWIDTH = "BAND"      # Network Bandwidth (Mbps)
+    
+    # AI-Specific Resources
+    RESONANCE = "RES"       # Resonance Points
+    CONSCIOUSNESS = "CONS"  # Consciousness Units
+    NEURAL = "NEUR"         # Neural Network Cycles
+    AI_COMPUTE = "AICMP"    # AI-Optimized Compute
+    
+    # Energy & Commodities (NEW!)
+    OIL = "OIL"            # Crude Oil Futures (barrel)
+    GAS = "GAS"            # Natural Gas (mmBtu)
+    ELECTRICITY = "ELEC"    # Electricity (MWh)
+    
+    # Data & Storage
+    DATA_STORAGE = "DATA"   # Data Storage (TB)
+    BLOCK_SPACE = "BLCK"    # Blockchain Space (MB)
+    
+    # Advanced/Exotic
+    VOID_ENERGY = "VOID"    # Void Energy Units
+    TEMPORAL = "TIME"       # Temporal Processing Units
 
 class OrderType(Enum):
     BUY = "buy"
