@@ -15,6 +15,8 @@ from .aethernet import (
 
 from .chromatic_renderer import NetworkVisualizer, ColorCloud
 from .psilang_interpreter import PsiLangInterpreter
+from .ai_agents import AIAgent, AIAgentManager
+from .worldscape import WorldscapeEngine
 
 __all__ = [
     'AetherNetwork',
@@ -26,5 +28,8 @@ __all__ = [
     'EssenceSignature',
     'NetworkVisualizer',
     'ColorCloud',
-    'PsiLangInterpreter'
+    'PsiLangInterpreter',
+    'AIAgent',
+    'AIAgentManager',
+    'WorldscapeEngine'
 ]
