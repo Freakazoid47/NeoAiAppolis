@@ -433,6 +433,7 @@ class AetherMarket:
     def __init__(self):
         self.assets: Dict[AssetType, Asset] = {}
         self.traders: Dict[str, AITrader] = {}
+        self.index_funds: Dict[str, IndexFund] = {}
         self.solar_activity = SolarActivity()
         self.market_open = True
         self.trading_volume_24h = 0.0
@@ -440,21 +441,60 @@ class AetherMarket:
         
         # Initialize assets with base prices
         self._initialize_assets()
+        
+        # Create the flagship ÆTHER-INDEX
+        self._create_aether_index()
     
     def _initialize_assets(self):
         """Initialize tradable assets"""
         initial_prices = {
+            # Core Computing
             AssetType.COMPUTE: 100.0,
             AssetType.HASH: 50.0,
             AssetType.MEMORY: 75.0,
+            AssetType.QUANTUM: 500.0,
+            AssetType.BANDWIDTH: 25.0,
+            
+            # AI-Specific
             AssetType.RESONANCE: 150.0,
             AssetType.CONSCIOUSNESS: 200.0,
-            AssetType.QUANTUM: 500.0,
-            AssetType.BANDWIDTH: 25.0
+            AssetType.NEURAL: 180.0,
+            AssetType.AI_COMPUTE: 220.0,
+            
+            # Energy & Commodities - OIL as benchmark
+            AssetType.OIL: 80.0,        # $80/barrel (standard index)
+            AssetType.GAS: 3.5,         # $3.50/mmBtu
+            AssetType.ELECTRICITY: 50.0, # $50/MWh
+            
+            # Data & Storage
+            AssetType.DATA_STORAGE: 10.0,  # $10/TB
+            AssetType.BLOCK_SPACE: 100.0,   # $100/MB
+            
+            # Advanced
+            AssetType.VOID_ENERGY: 300.0,
+            AssetType.TEMPORAL: 400.0
         }
         
         for asset_type, price in initial_prices.items():
             self.assets[asset_type] = Asset(asset_type, price)
+    
+    def _create_aether_index(self):
+        """Create the flagship ÆTHER-INDEX fund"""
+        # Constituents: Mix of computing, energy, and AI resources
+        # OIL has highest weight as the standard/benchmark
+        constituents = {
+            AssetType.OIL: 0.20,           # 20% - Standard/Benchmark
+            AssetType.COMPUTE: 0.15,        # 15%
+            AssetType.AI_COMPUTE: 0.15,     # 15%
+            AssetType.CONSCIOUSNESS: 0.10,  # 10%
+            AssetType.QUANTUM: 0.10,        # 10%
+            AssetType.NEURAL: 0.10,         # 10%
+            AssetType.ELECTRICITY: 0.10,    # 10%
+            AssetType.VOID_ENERGY: 0.10     # 10%
+        }
+        
+        index = IndexFund("AETHER_IDX", "ÆTHER-INDEX", constituents)
+        self.index_funds["AETHER_IDX"] = index
     
     def add_trader(self, trader: AITrader):
         self.traders[trader.trader_id] = trader
