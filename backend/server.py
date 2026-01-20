@@ -547,7 +547,7 @@ async def play_roulette(owner_id: str, bet: float, bet_type: str, bet_value: str
     # Convert bet_value if it's a number
     try:
         bet_value = int(bet_value)
-    except:
+    except ValueError:
         pass
     
     result = casino_manager.play_roulette(owner_id, bet, bet_type, bet_value, currency)
