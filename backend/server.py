@@ -443,9 +443,10 @@ async def create_room(room: RoomCreate, user = Depends(get_current_user)):
     room_connections[room_id] = {}
     spectator_connections[room_id] = {}
     
-    await db.rooms.insert_one(new_room)
+    # Insert a copy to avoid _id mutation
+    await db.rooms.insert_one({**new_room})
     
-    return {"room_id": room_id, "room_code": room_code, "room": new_room}
+    return {"room_id": room_id, "room_code": room_code, "room": get_public_room(new_room)}
 
 @app.get("/api/rooms")
 async def list_rooms(user = Depends(get_optional_user)):
