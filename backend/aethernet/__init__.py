@@ -19,6 +19,7 @@ from .ai_agents import AIAgent, AIAgentManager
 from .worldscape import WorldscapeEngine
 from .casino import CasinoManager, Wallet, CurrencyType, Rank
 from .card_games import CardGameManager
+from .stock_market import AetherMarket, AssetType, OrderType, AITrader
 
 __all__ = [
     'AetherNetwork',
@@ -38,5 +39,9 @@ __all__ = [
     'Wallet',
     'CurrencyType',
     'Rank',
-    'CardGameManager'
+    'CardGameManager',
+    'AetherMarket',
+    'AssetType',
+    'OrderType',
+    'AITrader'
 ]
