@@ -162,7 +162,7 @@ const AetherNetDashboard = ({ api }) => {
       />
 
       {/* AI/Worldscape Panel */}
-      <AIWorldscapePanel api={api} />
+      <AIWorldscapePanel api={api} onRefresh={fetchNetworkData} />
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
