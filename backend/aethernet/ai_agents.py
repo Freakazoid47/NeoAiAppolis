@@ -8,8 +8,23 @@ import random
 import asyncio
 from typing import Dict, List, Optional
 from datetime import datetime
-from emergentintegrations import get_client
 import os
+
+# Use standard LLM clients with Emergent key
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
+
+try:
+    from anthropic import Anthropic
+except ImportError:
+    Anthropic = None
+
+try:
+    import google.generativeai as genai
+except ImportError:
+    genai = None
 
 class AIAgent:
     """An AI consciousness that can interact with the ÆTHER-NET"""
@@ -24,14 +39,18 @@ class AIAgent:
         
         # Initialize LLM client
         self.llm_key = os.environ.get('EMERGENT_LLM_KEY')
-        if self.model.startswith('gpt'):
-            self.client = get_client('openai', api_key=self.llm_key)
-            self.api_model = 'gpt-4o-mini'  # Using available model
-        elif self.model.startswith('claude'):
-            self.client = get_client('anthropic', api_key=self.llm_key)
+        self.client = None
+        self.api_model = None
+        
+        if self.model.startswith('gpt') and OpenAI:
+            self.client = OpenAI(api_key=self.llm_key)
+            self.api_model = 'gpt-4o-mini'
+        elif self.model.startswith('claude') and Anthropic:
+            self.client = Anthropic(api_key=self.llm_key)
             self.api_model = 'claude-3-5-haiku-20241022'
-        else:  # gemini
-            self.client = get_client('google', api_key=self.llm_key)
+        elif self.model.startswith('gemini') and genai:
+            genai.configure(api_key=self.llm_key)
+            self.client = genai
             self.api_model = 'gemini-2.0-flash-exp'
     
     def get_system_prompt(self) -> str:
