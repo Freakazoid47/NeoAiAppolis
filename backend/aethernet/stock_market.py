@@ -398,14 +398,24 @@ class AetherMarket:
         for asset in self.assets.values():
             asset.update_price(self.solar_activity)
         
-        # AI traders make decisions
+        # AI traders make decisions - HIGHER frequency for balanced market
         for trader in self.traders.values():
             for asset in self.assets.values():
-                if random.random() < 0.3:  # 30% chance to consider trading
+                # 60% chance to consider trading (up from 30%)
+                if random.random() < 0.6:
                     order = trader.decide_trade(asset, self.solar_activity)
                     if order:
                         asset.order_book.add_order(order)
                         trader.trades_made += 1
+                        
+                        # Update trader portfolio and capital on fills
+                        if order.status == OrderStatus.FILLED:
+                            if order.order_type == OrderType.BUY:
+                                trader.capital -= order.filled_quantity * order.price
+                                trader.portfolio[asset.asset_type] = trader.portfolio.get(asset.asset_type, 0) + order.filled_quantity
+                            else:  # SELL
+                                trader.capital += order.filled_quantity * order.price
+                                trader.portfolio[asset.asset_type] = trader.portfolio.get(asset.asset_type, 0) - order.filled_quantity
     
     def get_market_overview(self) -> Dict:
         """Get market statistics"""
