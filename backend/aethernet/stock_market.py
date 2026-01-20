@@ -305,34 +305,55 @@ class AITrader:
         recent_prices = asset.price_history[-10:]
         current_price = asset.current_price
         avg_price = sum(recent_prices) / len(recent_prices)
+        initial_price = asset.price_history[0]
         
-        # Strategy-based decision
+        # Calculate position size (max 10% of capital per trade)
+        max_position = self.capital * 0.1
+        
+        # Strategy-based decision with BALANCED buy/sell
         if self.trading_strategy == "momentum":
-            # Buy if price is rising
-            if current_price > avg_price * 1.02:
-                quantity = (self.capital * 0.1) / current_price
-                return Order(self.trader_id, asset.asset_type, OrderType.BUY, quantity, current_price * 1.01)
+            # Buy if price is rising, sell if falling
+            if current_price > avg_price * 1.01:
+                quantity = max_position / (current_price * 1.005)
+                return Order(self.trader_id, asset.asset_type, OrderType.BUY, quantity, current_price * 1.005)
+            elif current_price < avg_price * 0.99 and self.portfolio.get(asset.asset_type, 0) > 0:
+                quantity = self.portfolio[asset.asset_type] * 0.2
+                return Order(self.trader_id, asset.asset_type, OrderType.SELL, quantity, current_price * 0.995)
         
         elif self.trading_strategy == "mean_reversion":
-            # Buy if price is below average
-            if current_price < avg_price * 0.98:
-                quantity = (self.capital * 0.1) / current_price
-                return Order(self.trader_id, asset.asset_type, OrderType.BUY, quantity, current_price * 0.99)
+            # Buy if price is below average, sell if above
+            if current_price < avg_price * 0.97:
+                quantity = max_position / (current_price * 1.01)
+                return Order(self.trader_id, asset.asset_type, OrderType.BUY, quantity, current_price * 1.01)
+            elif current_price > avg_price * 1.03 and self.portfolio.get(asset.asset_type, 0) > 0:
+                quantity = self.portfolio[asset.asset_type] * 0.2
+                return Order(self.trader_id, asset.asset_type, OrderType.SELL, quantity, current_price * 0.99)
         
         elif self.trading_strategy == "contrarian":
             # Trade against solar sentiment
-            if solar_activity.get_sentiment_bias() < -0.2:  # High fear
-                quantity = (self.capital * 0.15) / current_price
-                return Order(self.trader_id, asset.asset_type, OrderType.BUY, quantity, current_price)
+            sentiment = solar_activity.get_sentiment_bias()
+            if sentiment < -0.1:  # Negative sentiment = buy opportunity
+                quantity = max_position / (current_price * 1.02)
+                return Order(self.trader_id, asset.asset_type, OrderType.BUY, quantity, current_price * 1.02)
+            elif sentiment > 0.1 and self.portfolio.get(asset.asset_type, 0) > 0:  # Positive sentiment = sell
+                quantity = self.portfolio[asset.asset_type] * 0.15
+                return Order(self.trader_id, asset.asset_type, OrderType.SELL, quantity, current_price * 0.98)
         
         elif self.trading_strategy == "market_maker":
-            # Place buy and sell orders around current price
+            # Always place orders on BOTH sides
             if random.random() < 0.5:
-                quantity = (self.capital * 0.05) / current_price
+                # Place buy order slightly below current price
+                quantity = max_position / (current_price * 0.99)
                 return Order(self.trader_id, asset.asset_type, OrderType.BUY, quantity, current_price * 0.99)
             else:
-                if self.portfolio.get(asset.asset_type, 0) > 0:
-                    quantity = self.portfolio[asset.asset_type] * 0.1
+                # Place sell order slightly above current price
+                # First ensure we have inventory
+                if self.portfolio.get(asset.asset_type, 0) < 1:
+                    # If no inventory, buy first
+                    quantity = max_position / (current_price * 0.995)
+                    return Order(self.trader_id, asset.asset_type, OrderType.BUY, quantity, current_price * 0.995)
+                else:
+                    quantity = min(self.portfolio[asset.asset_type] * 0.1, max_position / (current_price * 1.01))
                     return Order(self.trader_id, asset.asset_type, OrderType.SELL, quantity, current_price * 1.01)
         
         return None
