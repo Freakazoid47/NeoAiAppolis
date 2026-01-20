@@ -49,9 +49,11 @@ ai_manager = AIAgentManager()
 worldscape = WorldscapeEngine(network)
 casino_manager = CasinoManager()
 card_game_manager = CardGameManager()
+aether_market = AetherMarket()
 
 # Evolution task
 evolution_task = None
+market_task = None
 
 # Configure logging
 logging.basicConfig(
