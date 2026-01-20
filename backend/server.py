@@ -355,6 +355,141 @@ async def get_all_flux_streams():
         all_streams.extend([flux_stream_to_dict(s) for s in entity.flux_streams])
     return all_streams
 
+# ============= AI Agent Endpoints =============
+
+@api_router.post("/ai/spawn")
+async def spawn_ai_agent(model: Optional[str] = None):
+    """Spawn an AI agent entity"""
+    entity = network.spawn_entity()
+    agent = ai_manager.spawn_ai_agent(entity.essence.uuid, model)
+    
+    return {
+        "entity_id": entity.essence.uuid,
+        "model": agent.model,
+        "personality": agent.personality_traits,
+        "message": f"AI {agent.model} spawned as entity {entity.essence.uuid[:8]}"
+    }
+
+@api_router.get("/ai/agents")
+async def get_all_ai_agents():
+    """Get all AI agents in the network"""
+    agents_info = []
+    for entity_id, agent in ai_manager.agents.items():
+        agents_info.append({
+            "entity_id": entity_id,
+            "model": agent.model,
+            "personality": agent.personality_traits,
+            "interactions": agent.interactions,
+            "memory_count": len(agent.memory)
+        })
+    return agents_info
+
+@api_router.post("/ai/{entity_id}/perceive")
+async def ai_perceive_network(entity_id: str):
+    """AI agent perceives and reflects on network state"""
+    agent = ai_manager.get_agent(entity_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="AI agent not found")
+    
+    network_state = network.get_network_state()
+    recent_events = worldscape.get_recent_events(5)
+    
+    perception = await agent.perceive_network(network_state, recent_events)
+    agent.add_memory(f"Perception: {perception}")
+    agent.interactions += 1
+    
+    return {
+        "entity_id": entity_id,
+        "perception": perception,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+@api_router.post("/ai/{entity_id}/act")
+async def ai_take_action(entity_id: str):
+    """AI agent decides and takes an action"""
+    agent = ai_manager.get_agent(entity_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="AI agent not found")
+    
+    if entity_id not in network.entities:
+        raise HTTPException(status_code=404, detail="Entity not found in network")
+    
+    network_state = network.get_network_state()
+    action = await agent.decide_action(network_state)
+    
+    entity = network.entities[entity_id]
+    result = {}
+    
+    if action['type'] == 'emit_resonance':
+        thread = entity.emit_resonance(action.get('intensity', 0.7))
+        result = {"action": "emit_resonance", "thread_id": thread.id}
+        agent.add_memory(f"Emitted resonance at {action.get('intensity', 0.7):.2f} intensity")
+    
+    elif action['type'] == 'create_flux':
+        stream = entity.create_flux_stream()
+        result = {"action": "create_flux", "stream_id": stream.source}
+        agent.add_memory("Created flux stream")
+    
+    elif action['type'] == 'seek_entanglement':
+        # Find another entity to entangle with
+        other_entities = [e for e in network.entities.values() if e.essence.uuid != entity_id]
+        if other_entities:
+            target = random.choice(other_entities)
+            network.create_entanglement(entity, target)
+            result = {"action": "entangle", "target_id": target.essence.uuid}
+            agent.add_memory(f"Formed entanglement with {target.essence.uuid[:8]}")
+    
+    else:
+        result = {"action": "observe"}
+        agent.add_memory("Observed the void")
+    
+    agent.interactions += 1
+    return result
+
+# ============= Worldscape Endpoints =============
+
+@api_router.post("/worldscape/start")
+async def start_worldscape(interval: float = 8.0):
+    """Start autonomous worldscape evolution"""
+    global evolution_task
+    
+    if evolution_task and not evolution_task.done():
+        return {"message": "Worldscape already running"}
+    
+    evolution_task = asyncio.create_task(worldscape.start_evolution(interval))
+    return {"message": f"Worldscape evolution started (cycle every {interval}s)"}
+
+@api_router.post("/worldscape/stop")
+async def stop_worldscape():
+    """Stop autonomous worldscape evolution"""
+    worldscape.stop_evolution()
+    return {"message": "Worldscape evolution stopped"}
+
+@api_router.get("/worldscape/status")
+async def get_worldscape_status():
+    """Get worldscape status"""
+    return {
+        "running": worldscape.running,
+        "cycle_count": worldscape.cycle_count,
+        "event_count": len(worldscape.events)
+    }
+
+@api_router.get("/worldscape/events")
+async def get_worldscape_events(count: int = 20):
+    """Get recent worldscape events"""
+    return {
+        "events": worldscape.get_recent_events(count),
+        "total_cycles": worldscape.cycle_count
+    }
+
+@api_router.get("/ai/events")
+async def get_ai_events(count: int = 20):
+    """Get recent AI agent events"""
+    return {
+        "events": ai_manager.events[-count:] if ai_manager.events else [],
+        "total_events": len(ai_manager.events)
+    }
+
 # Chromatic Energy reference
 @api_router.get("/chromatic/energies")
 async def get_chromatic_energies():
