@@ -493,6 +493,90 @@ async def get_ai_events(count: int = 20):
         "total_events": len(ai_manager.events)
     }
 
+# ============= Casino Endpoints =============
+
+@api_router.post("/casino/wallet/create")
+async def create_casino_wallet(owner_id: str, owner_type: str = "human"):
+    """Create a casino wallet"""
+    wallet = casino_manager.create_wallet(owner_id, owner_type)
+    return {
+        "wallet_id": wallet.id,
+        "owner_id": wallet.owner_id,
+        "owner_type": wallet.owner_type,
+        "balances": {k.name: v for k, v in wallet.balances.items()},
+        "rank": wallet.rank.value["name"],
+        "rank_color": wallet.rank.value["color"],
+        "level": wallet.level,
+        "xp": wallet.xp
+    }
+
+@api_router.get("/casino/wallet/{owner_id}")
+async def get_casino_wallet(owner_id: str):
+    """Get wallet details"""
+    wallet = casino_manager.get_wallet(owner_id)
+    if not wallet:
+        raise HTTPException(status_code=404, detail="Wallet not found")
+    
+    return {
+        "wallet_id": wallet.id,
+        "owner_id": wallet.owner_id,
+        "owner_type": wallet.owner_type,
+        "balances": {k.name: v for k, v in wallet.balances.items()},
+        "rank": wallet.rank.value["name"],
+        "rank_color": wallet.rank.value["color"],
+        "level": wallet.level,
+        "xp": wallet.xp,
+        "total_won": wallet.total_won,
+        "total_lost": wallet.total_lost,
+        "games_played": wallet.games_played,
+        "games_won": wallet.games_won,
+        "win_rate": (wallet.games_won / wallet.games_played * 100) if wallet.games_played > 0 else 0
+    }
+
+@api_router.post("/casino/play/slots")
+async def play_slots(owner_id: str, bet: float, currency: str = "PSICOIN"):
+    """Play quantum slots"""
+    result = casino_manager.play_slots(owner_id, bet, currency)
+    return result
+
+@api_router.post("/casino/play/roulette")
+async def play_roulette(owner_id: str, bet: float, bet_type: str, bet_value: str, currency: str = "PSICOIN"):
+    """Play quantum roulette"""
+    # Convert bet_value if it's a number
+    try:
+        bet_value = int(bet_value)
+    except:
+        pass
+    
+    result = casino_manager.play_roulette(owner_id, bet, bet_type, bet_value, currency)
+    return result
+
+@api_router.post("/casino/play/dice")
+async def play_dice(owner_id: str, bet: float, prediction: int, currency: str = "PSICOIN"):
+    """Play resonance dice"""
+    result = casino_manager.play_dice(owner_id, bet, prediction, currency)
+    return result
+
+@api_router.post("/casino/play/blackjack")
+async def play_blackjack(owner_id: str, bet: float, currency: str = "PSICOIN"):
+    """Play void blackjack"""
+    result = casino_manager.play_blackjack(owner_id, bet, currency)
+    return result
+
+@api_router.get("/casino/leaderboard")
+async def get_casino_leaderboard(limit: int = 10):
+    """Get casino leaderboard"""
+    return {"leaderboard": casino_manager.get_leaderboard(limit)}
+
+@api_router.get("/casino/recent-games")
+async def get_recent_casino_games(limit: int = 20):
+    """Get recent casino games"""
+    games = casino_manager.get_recent_games(limit)
+    # Convert datetime to string
+    for game in games:
+        game["timestamp"] = game["timestamp"].isoformat()
+    return {"games": games}
+
 # Chromatic Energy reference
 @api_router.get("/chromatic/energies")
 async def get_chromatic_energies():
