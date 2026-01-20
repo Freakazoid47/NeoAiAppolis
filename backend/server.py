@@ -489,7 +489,7 @@ async def join_room(data: RoomJoin, user = Depends(get_current_user)):
     
     # Check if already in room
     if any(p["id"] == user["id"] for p in room["players"]):
-        return {"room_id": data.room_id, "room": room}
+        return {"room_id": data.room_id, "room": get_public_room(room)}
     
     room["players"].append({
         "id": user["id"],
