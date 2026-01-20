@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Fours Card Game - Online</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="utils.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- RULES/SPLASH MODAL -->
+        <div class="modal" id="rulesModal" style="display: none;">
+            <div class="modal-content rules-modal">
+                <div class="modal-header">
+                    <h2>Game Rules</h2>
+                    <span class="close-btn" onclick="closeRulesModal()">&times;</span>
+                </div>
+                
+                <div class="rules-container">
+                    <div class="rules-display" id="rulesDisplay"></div>
+                    
+                    <!-- Edit rules section (only visible to room creator) -->
+                    <div id="editRulesSection" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--accent);">
+                        <h3 style="color: var(--gold); margin-bottom: 10px;">✏️ Edit House Rules</h3>
+                        <textarea id="rulesTextarea" class="rules-textarea" placeholder="Enter custom rules..."></textarea>
+                        <div style="margin-top: 10px; display: flex; gap: 10px;">
+                            <button class="btn btn-start" onclick="saveRules()" style="flex: 1;">Save Rules</button>
+                            <button class="btn btn-secondary" onclick="cancelEditRules()" style="flex: 1;">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="btn btn-start" id="editRulesBtn" onclick="toggleEditRules()" style="display: none;">Edit Rules</button>
+                    <button class="btn btn-secondary" onclick="closeRulesModal()">I Understand</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN MENU SCREEN -->
+        <div class="screen menu-screen" id="menuScreen">
+            <div class="lobby-box">
+                <h1>♠ All Fours ♠</h1>
+                <p class="subtitle">Online Multiplayer Card Game</p>
+                
+                <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 15px;">
+                    <button class="btn btn-start" onclick="showCreateGame()">
+                        Create New Game
+                    </button>
+                    <button class="btn btn-start" onclick="showJoinGame()">
+                        Join Game
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CREATE GAME SCREEN -->
+        <div class="screen" id="createGameScreen" style="display: none;">
+            <div class="lobby-box">
+                <h2>Create New Game</h2>
+                <p style="margin-top: 10px; margin-bottom: 20px; color: #FFB703;">Enter your name to create a room</p>
+                
+                <input type="text" id="createPlayerName" placeholder="Your name" class="input-field" maxlength="20">
+                
+                <button class="btn btn-start" onclick="createGame()" style="margin-top: 20px;">
+                    Create Game
+                </button>
+                <button class="btn btn-secondary" onclick="showMenu()" style="margin-top: 10px;">
+                    Back
+                </button>
+            </div>
+        </div>
+
+        <!-- JOIN GAME SCREEN -->
+        <div class="screen" id="joinGameScreen" style="display: none;">
+            <div class="lobby-box">
+                <h2>Join Game</h2>
+                <p style="margin-top: 10px; margin-bottom: 20px; color: #FFB703;">Enter room code and your name</p>
+                
+                <input type="text" id="joinRoomCode" placeholder="Room Code (e.g., ABC123)" class="input-field" maxlength="10" style="text-transform: uppercase;">
+                <input type="text" id="joinPlayerName" placeholder="Your name" class="input-field" maxlength="20" style="margin-top: 10px;">
+                
+                <button class="btn btn-start" onclick="joinGame()" style="margin-top: 20px;">
+                    Join Game
+                </button>
+                <button class="btn btn-secondary" onclick="showMenu()" style="margin-top: 10px;">
+                    Back
+                </button>
+            </div>
+        </div>
+
+        <!-- WAITING ROOM SCREEN -->
+        <div class="screen" id="waitingRoomScreen" style="display: none;">
+            <div class="lobby-box">
+                <h2>Waiting Room</h2>
+                <p style="margin-top: 10px; margin-bottom: 10px; color: #FFB703;">Room Code: <span id="roomCodeDisplay" style="font-weight: bold; font-size: 1.3em;">ABC123</span></p>
+                <p style="margin-bottom: 30px; font-size: 0.9em; color: #999;">Share this code with other players</p>
+                
+                <div class="player-grid" id="waitingPlayers">
+                    <!-- Players will be listed here -->
+                </div>
+
+                <button class="btn btn-start" id="startGameBtn" onclick="startOnlineGame()" style="margin-top: 30px; display: none;">
+                    Start Game (waiting for players...)
+                </button>
+                <button class="btn" onclick="addAIPlayer()" style="margin-top: 10px; background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); border: 2px solid #FFB703;">
+                    🤖 Add AI Player
+                </button>
+                <button class="btn" onclick="showRulesModal()" style="margin-top: 10px; background: linear-gradient(135deg, var(--accent) 0%, var(--curse-purple) 100%); border: 2px solid var(--gold);">
+                    📖 View/Edit Rules
+                </button>
+                <button class="btn btn-secondary" onclick="leaveGame()" style="margin-top: 10px;">
+                    Leave Game
+                </button>
+            </div>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div class="screen game-screen" id="gameScreen" style="display: none;">
+            <div class="game-container">
+                <!-- Top Info Bar -->
+                <div class="info-bar">
+                    <div class="info-item">
+                        <span class="label">Trump:</span>
+                        <span id="trumpDisplay" class="trump-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span id="phaseDisplay" class="phase">Playing...</span>
+                    </div>
+                    <div class="info-item">
+                        <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+                    </div>
+                </div>
+
+                <!-- Other Players Section -->
+                <div class="other-players" id="otherPlayersSection"></div>
+
+                <!-- Play Area -->
+                <div class="play-area">
+                    <div class="trick-area" id="trickArea"></div>
+                    <div class="status-box" id="statusBox">
+                        <p id="statusText">Game starting...</p>
+                    </div>
+                </div>
+
+                <!-- Player Hand -->
+                <div class="hand-area">
+                    <div class="hand-label">Your Hand</div>
+                    <div class="hand" id="playerHand"></div>
+                </div>
+
+                <!-- Scores -->
+                <div class="scores-bar">
+                    <div id="scoresDisplay"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script src="socket-client.js"></script>
+</body>
+</html>

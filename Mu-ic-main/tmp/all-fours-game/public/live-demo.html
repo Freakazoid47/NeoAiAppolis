@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Fours - Live Game Demo</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0D0221 0%, #1A0E2E 100%);
+            color: #fff;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .game-view {
+            background: rgba(20, 15, 50, 0.9);
+            border: 2px solid #FF1744;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(255, 23, 68, 0.3);
+        }
+        .log-view {
+            background: rgba(20, 15, 50, 0.9);
+            border: 2px solid #6B2C72;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        h1, h2 {
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .log-entry {
+            padding: 5px;
+            margin: 5px 0;
+            border-left: 3px solid #FF1744;
+            padding-left: 10px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .log-entry.success {
+            border-left-color: #00FF00;
+            color: #00FF00;
+        }
+        .log-entry.error {
+            border-left-color: #FF6B6B;
+            color: #FF6B6B;
+        }
+        .log-entry.score {
+            border-left-color: #FFD700;
+            color: #FFD700;
+            font-weight: bold;
+        }
+        .status {
+            padding: 15px;
+            background: rgba(107, 44, 114, 0.3);
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .team-scores {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .team-score {
+            background: rgba(255, 23, 68, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .team-score.winning {
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00FF00;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #FF1744 0%, #6B2C72 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 23, 68, 0.4);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎴 All Fours Live Game Demo</h1>
+    
+    <div class="container">
+        <div class="game-view">
+            <h2>Game Status</h2>
+            <div class="status">
+                <div>Status: <strong id="status">Connecting...</strong></div>
+                <div>Room: <strong id="room">-</strong></div>
+                <div>Round: <strong id="round">0</strong></div>
+            </div>
+            
+            <div class="team-scores">
+                <div class="team-score" id="team1-display">
+                    <div>Team 1</div>
+                    <div style="font-size: 24px; font-weight: bold; margin-top: 10px;" id="team1-score">0</div>
+                </div>
+                <div class="team-score" id="team2-display">
+                    <div>Team 2</div>
+                    <div style="font-size: 24px; font-weight: bold; margin-top: 10px;" id="team2-score">0</div>
+                </div>
+            </div>
+            
+            <div class="status" id="game-info" style="display:none;">
+                <div id="trump-info"></div>
+                <div id="current-play"></div>
+            </div>
+            
+            <div class="button-group">
+                <button onclick="startAutoGame()" id="start-btn">Start Auto Game</button>
+                <button onclick="stopGame()" id="stop-btn" disabled>Stop Game</button>
+            </div>
+        </div>
+        
+        <div class="log-view">
+            <h2>Game Log</h2>
+            <div id="log-container"></div>
+        </div>
+    </div>
+    
+    <script>
+        const socket = io();
+        let gameRunning = false;
+        let gameState = {
+            roomCode: null,
+            playerSlot: null,
+            roundNumber: 0,
+            teamScores: { team1: 0, team2: 0 }
+        };
+        
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            if (type) entry.classList.add(type);
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function updateUI() {
+            document.getElementById('room').textContent = gameState.roomCode || '-';
+            document.getElementById('round').textContent = gameState.roundNumber;
+            document.getElementById('team1-score').textContent = gameState.teamScores.team1;
+            document.getElementById('team2-score').textContent = gameState.teamScores.team2;
+            
+            const team1Elem = document.getElementById('team1-display');
+            const team2Elem = document.getElementById('team2-display');
+            
+            team1Elem.classList.remove('winning');
+            team2Elem.classList.remove('winning');
+            
+            if (gameState.teamScores.team1 >= 14) {
+                team1Elem.classList.add('winning');
+            }
+            if (gameState.teamScores.team2 >= 14) {
+                team2Elem.classList.add('winning');
+            }
+        }
+        
+        socket.on('connect', () => {
+            log('✅ Connected to server', 'success');
+            document.getElementById('status').textContent = 'Connected';
+        });
+        
+        socket.on('room-created', (data) => {
+            gameState.roomCode = data.roomCode;
+            gameState.playerSlot = data.playerSlot;
+            log(`✅ Room created: ${gameState.roomCode}`, 'success');
+            updateUI();
+        });
+        
+        socket.on('room-updated', (data) => {
+            log(`👥 Players in room: ${data.playerCount}/4`, 'info');
+        });
+        
+        socket.on('game-started', (data) => {
+            gameState.roundNumber++;
+            log(`🎮 ROUND ${gameState.roundNumber} STARTED`, 'info');
+            document.getElementById('status').textContent = 'Playing';
+            updateUI();
+        });
+        
+        socket.on('round-scores', (data) => {
+            if (data.teamMode) {
+                log(`📊 Team 1: +${data.team1Score} | Team 2: +${data.team2Score}`, 'score');
+                gameState.teamScores.team1 += data.team1Score;
+                gameState.teamScores.team2 += data.team2Score;
+            }
+            updateUI();
+        });
+        
+        socket.on('game-over', (data) => {
+            gameRunning = false;
+            log(`🏆 GAME OVER!`, 'success');
+            if (data.winnerTeam) {
+                log(`${data.winnerTeam} WINS!`, 'success');
+            }
+            document.getElementById('status').textContent = 'Game Over';
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = true;
+        });
+        
+        socket.on('error', (error) => {
+            log(`❌ Error: ${error}`, 'error');
+        });
+        
+        socket.on('disconnect', () => {
+            log('❌ Disconnected from server', 'error');
+            document.getElementById('status').textContent = 'Disconnected';
+        });
+        
+        function startAutoGame() {
+            gameRunning = true;
+            gameState.roundNumber = 0;
+            gameState.teamScores = { team1: 0, team2: 0 };
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('stop-btn').disabled = false;
+            document.getElementById('log-container').innerHTML = '';
+            
+            log('🎮 Starting new game...', 'info');
+            socket.emit('create-room', { playerName: 'Demo Player' });
+        }
+        
+        function stopGame() {
+            gameRunning = false;
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = true;
+            log('⏹️ Game stopped', 'info');
+        }
+    </script>
+</body>
+</html>
