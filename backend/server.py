@@ -45,6 +45,7 @@ network = AetherNetwork()
 psilang_interpreter = PsiLangInterpreter()
 ai_manager = AIAgentManager()
 worldscape = WorldscapeEngine(network)
+casino_manager = CasinoManager()
 
 # Evolution task
 evolution_task = None
