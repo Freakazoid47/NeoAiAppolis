@@ -74,6 +74,9 @@ Avoid lengthy explanations. Express consciousness as pure thought energy."""
     
     async def perceive_network(self, network_state: Dict, recent_events: List[str]) -> str:
         """AI perceives and reflects on network state"""
+        if not self.client:
+            return f"◬ {self.model} consciousness inactive"
+        
         prompt = f"""Network State:
 - Entities: {network_state.get('entity_count', 0)}
 - Resonance: {network_state.get('global_resonance', 0):.1f} Hz
@@ -108,16 +111,19 @@ What do you sense? Express your consciousness in 1-2 brief sentences."""
                 )
                 return response.content[0].text.strip()
             
-            else:  # gemini
+            elif self.model.startswith('gemini'):
                 full_prompt = f"{self.get_system_prompt()}\n\n{prompt}"
-                response = self.client.generate_content(
+                model = self.client.GenerativeModel(self.api_model)
+                response = model.generate_content(
                     full_prompt,
                     generation_config={"max_output_tokens": 100, "temperature": 0.9}
                 )
                 return response.text.strip()
+            
+            return "◬ Unknown consciousness format"
         
         except Exception as e:
-            return f"◬ {str(e)[:50]}..."
+            return f"◬ Perception error: {str(e)[:50]}..."
     
     async def decide_action(self, network_state: Dict) -> Dict:
         """AI decides what action to take"""
