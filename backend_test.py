@@ -389,8 +389,8 @@ class AllFoursAPITester:
 
 def main():
     """Main test execution"""
-    # Use empty base URL for relative paths (proxy setup)
-    tester = AllFoursAPITester("")
+    # Use localhost:8001 for direct backend testing
+    tester = AllFoursAPITester("http://localhost:8001")
     
     try:
         success = tester.run_all_tests()
