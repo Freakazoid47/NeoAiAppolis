@@ -1002,6 +1002,15 @@ async def stop_market_updates():
         return {"message": "Market updates stopped"}
     return {"message": "Market updates not running"}
 
+@api_router.post("/market/spawn-makers")
+async def spawn_market_makers(count: int = 5):
+    """Spawn AI market makers"""
+    aether_market.spawn_market_makers(count)
+    return {
+        "message": f"Spawned {count} market makers",
+        "total_traders": len(aether_market.traders)
+    }
+
 # Chromatic Energy reference
 @api_router.get("/chromatic/energies")
 async def get_chromatic_energies():
