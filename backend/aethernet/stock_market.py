@@ -217,18 +217,33 @@ class Asset:
         
         if bid and ask:
             mid_price = (bid + ask) / 2
+        elif bid:
+            mid_price = bid
+        elif ask:
+            mid_price = ask
         else:
             mid_price = self.current_price
         
-        # Apply solar volatility
-        volatility = solar_activity.get_market_volatility_multiplier()
+        # Apply solar volatility (reduced impact)
+        volatility = solar_activity.get_market_volatility_multiplier() * 0.3  # Reduced from 1.0
         sentiment = solar_activity.get_sentiment_bias()
         
-        # Random walk with solar influence
-        change_percent = random.uniform(-0.05, 0.05) * volatility + sentiment * 0.02
-        new_price = mid_price * (1 + change_percent)
+        # Balanced random walk - can go up or down
+        base_change = random.uniform(-0.02, 0.02)  # -2% to +2%
+        volatility_factor = random.uniform(-0.03, 0.03) * volatility
+        sentiment_factor = sentiment * 0.01
         
-        self.current_price = max(0.01, new_price)  # Prevent negative prices
+        total_change = base_change + volatility_factor + sentiment_factor
+        new_price = mid_price * (1 + total_change)
+        
+        # Add mean reversion - prices tend back toward initial price
+        initial_price = self.price_history[0] if self.price_history else 100
+        if new_price < initial_price * 0.7:
+            new_price *= 1.02  # Bounce back up
+        elif new_price > initial_price * 1.3:
+            new_price *= 0.98  # Pull back down
+        
+        self.current_price = max(1.0, new_price)  # Minimum $1
         self.price_history.append(self.current_price)
     
     def create_candlestick(self, period_start: datetime, period_end: datetime, solar_activity: SolarActivity) -> Candlestick:
