@@ -645,6 +645,19 @@ async def get_room(room_id: str, user = Depends(get_optional_user)):
         raise HTTPException(status_code=404, detail="Room not found")
     return {"room": get_public_room(room)}
 
+@app.get("/api/game/{room_id}/hand")
+async def get_my_hand(room_id: str, user = Depends(get_current_user)):
+    room = active_rooms.get(room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    game = room.get("game_state")
+    if not game:
+        raise HTTPException(status_code=400, detail="Game not started")
+    
+    hand = game["hands"].get(user["id"], [])
+    return {"hand": hand}
+
 # ============ GAME ENDPOINTS ============
 @app.post("/api/game/play-card")
 async def play_card(data: PlayCard, user = Depends(get_current_user)):
