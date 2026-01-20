@@ -530,6 +530,14 @@ class AetherMarket:
         for asset in self.assets.values():
             asset.update_price(self.solar_activity)
         
+        # Update index fund NAVs
+        for index_fund in self.index_funds.values():
+            index_fund.calculate_nav(self.assets)
+            
+            # Check if rebalancing needed
+            if index_fund.should_rebalance():
+                index_fund.rebalance(self.assets)
+        
         # AI traders make decisions - HIGHER frequency for balanced market
         for trader in self.traders.values():
             for asset in self.assets.values():
@@ -548,6 +556,43 @@ class AetherMarket:
                             else:  # SELL
                                 trader.capital += order.filled_quantity * order.price
                                 trader.portfolio[asset.asset_type] = trader.portfolio.get(asset.asset_type, 0) - order.filled_quantity
+    
+    def get_index_fund(self, fund_id: str) -> Optional[IndexFund]:
+        """Get index fund by ID"""
+        return self.index_funds.get(fund_id)
+    
+    def buy_index_shares(self, fund_id: str, investor_id: str, shares: float) -> Optional[Dict]:
+        """Buy index fund shares"""
+        fund = self.get_index_fund(fund_id)
+        if not fund:
+            return None
+        
+        cost = fund.buy_shares(investor_id, shares, fund.nav)
+        return {
+            "fund_id": fund_id,
+            "shares": shares,
+            "price_per_share": fund.nav,
+            "total_cost": cost,
+            "investor_shares": fund.shares_held.get(investor_id, 0)
+        }
+    
+    def sell_index_shares(self, fund_id: str, investor_id: str, shares: float) -> Optional[Dict]:
+        """Sell index fund shares"""
+        fund = self.get_index_fund(fund_id)
+        if not fund:
+            return None
+        
+        proceeds = fund.sell_shares(investor_id, shares, fund.nav)
+        if proceeds is None:
+            return None
+        
+        return {
+            "fund_id": fund_id,
+            "shares": shares,
+            "price_per_share": fund.nav,
+            "total_proceeds": proceeds,
+            "investor_shares": fund.shares_held.get(investor_id, 0)
+        }
     
     def get_market_overview(self) -> Dict:
         """Get market statistics"""
