@@ -300,7 +300,59 @@ class Asset:
         self.candlesticks.append(candle)
         return candle
 
-class AITrader:
+class IndexFund:
+    """AI Index Fund that tracks a basket of assets"""
+    def __init__(self, fund_id: str, name: str, constituents: Dict[AssetType, float]):
+        self.fund_id = fund_id
+        self.name = name
+        self.constituents = constituents  # {AssetType: weight (0-1)}
+        self.nav = 100.0  # Net Asset Value (starts at $100)
+        self.nav_history: List[float] = [100.0]
+        self.total_shares = 1000000.0  # Initial shares outstanding
+        self.shares_held: Dict[str, float] = {}  # {investor_id: shares}
+        self.created_at = datetime.now()
+        self.last_rebalance = datetime.now()
+        self.rebalance_interval = timedelta(hours=1)
+    
+    def calculate_nav(self, assets: Dict[AssetType, Asset]) -> float:
+        """Calculate Net Asset Value based on constituent prices"""
+        total_value = 0.0
+        for asset_type, weight in self.constituents.items():
+            if asset_type in assets:
+                total_value += assets[asset_type].current_price * weight
+        
+        self.nav = total_value
+        self.nav_history.append(self.nav)
+        return self.nav
+    
+    def buy_shares(self, investor_id: str, shares: float, price_per_share: float) -> float:
+        """Buy index fund shares"""
+        cost = shares * price_per_share
+        self.shares_held[investor_id] = self.shares_held.get(investor_id, 0) + shares
+        return cost
+    
+    def sell_shares(self, investor_id: str, shares: float, price_per_share: float) -> Optional[float]:
+        """Sell index fund shares"""
+        if self.shares_held.get(investor_id, 0) < shares:
+            return None  # Insufficient shares
+        
+        self.shares_held[investor_id] -= shares
+        proceeds = shares * price_per_share
+        return proceeds
+    
+    def should_rebalance(self) -> bool:
+        """Check if rebalancing is needed"""
+        return datetime.now() - self.last_rebalance > self.rebalance_interval
+    
+    def rebalance(self, assets: Dict[AssetType, Asset]):
+        """Rebalance constituent weights based on market caps"""
+        # Simple equal-weight rebalancing
+        # In production, could use market-cap weighting or other strategies
+        num_constituents = len(self.constituents)
+        for asset_type in self.constituents.keys():
+            self.constituents[asset_type] = 1.0 / num_constituents
+        
+        self.last_rebalance = datetime.now()
     """AI entity that trades on the market"""
     def __init__(self, trader_id: str, name: str, initial_capital: float):
         self.trader_id = trader_id
