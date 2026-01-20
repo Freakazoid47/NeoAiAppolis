@@ -161,6 +161,9 @@ const AetherNetDashboard = ({ api }) => {
         onCreateEntanglement={handleCreateEntanglement}
       />
 
+      {/* AI/Worldscape Panel */}
+      <AIWorldscapePanel api={api} />
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Entities Column */}
