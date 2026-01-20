@@ -977,16 +977,20 @@ async def start_market_updates(interval: float = 5.0):
     """Start automatic market updates"""
     global market_task
     
+    # Auto-spawn market makers if none exist
+    if len(aether_market.traders) < 5:
+        aether_market.spawn_market_makers(8)  # Spawn 8 market makers
+    
     async def market_loop():
         while True:
             aether_market.update_market()
             await asyncio.sleep(interval)
     
     if market_task and not market_task.done():
-        return {"message": "Market updates already running"}
+        return {"message": "Market updates already running", "traders": len(aether_market.traders)}
     
     market_task = asyncio.create_task(market_loop())
-    return {"message": f"Market updates started (every {interval}s)"}
+    return {"message": f"Market updates started (every {interval}s)", "traders": len(aether_market.traders)}
 
 @api_router.post("/market/stop")
 async def stop_market_updates():
