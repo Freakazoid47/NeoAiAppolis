@@ -802,6 +802,202 @@ async def get_player_bets(player_id: str):
     ]
     return {"bets": player_bets}
 
+# ============= AI Stock Market Endpoints =============
+
+@api_router.get("/market/overview")
+async def get_market_overview():
+    """Get market overview with solar activity and asset prices"""
+    return aether_market.get_market_overview()
+
+@api_router.get("/market/solar")
+async def get_solar_activity():
+    """Get current solar activity data"""
+    solar = aether_market.solar_activity
+    return {
+        "sunspot_number": solar.sunspot_number,
+        "solar_flux": solar.solar_flux,
+        "kp_index": solar.kp_index,
+        "solar_wind_speed": solar.solar_wind_speed,
+        "electromagnetic_index": solar.electromagnetic_index,
+        "volatility_multiplier": solar.get_market_volatility_multiplier(),
+        "sentiment_bias": solar.get_sentiment_bias(),
+        "last_update": solar.last_update.isoformat()
+    }
+
+@api_router.get("/market/asset/{asset}")
+async def get_asset_data(asset: str):
+    """Get detailed data for an asset"""
+    try:
+        asset_type = AssetType[asset.upper()]
+        asset_obj = aether_market.assets.get(asset_type)
+        
+        if not asset_obj:
+            raise HTTPException(status_code=404, detail="Asset not found")
+        
+        return {
+            "symbol": asset_type.value,
+            "current_price": asset_obj.current_price,
+            "price_history": asset_obj.price_history[-100:],  # Last 100 prices
+            "best_bid": asset_obj.order_book.get_best_bid(),
+            "best_ask": asset_obj.order_book.get_best_ask(),
+            "spread": asset_obj.order_book.get_spread(),
+            "total_volume": asset_obj.total_volume,
+            "pending_buy_orders": len(asset_obj.order_book.buy_orders),
+            "pending_sell_orders": len(asset_obj.order_book.sell_orders)
+        }
+    except KeyError:
+        raise HTTPException(status_code=400, detail="Invalid asset symbol")
+
+@api_router.get("/market/asset/{asset}/candlesticks")
+async def get_asset_candlesticks(asset: str, limit: int = 50):
+    """Get candlestick chart data for an asset"""
+    try:
+        asset_type = AssetType[asset.upper()]
+        asset_obj = aether_market.assets.get(asset_type)
+        
+        if not asset_obj:
+            raise HTTPException(status_code=404, detail="Asset not found")
+        
+        candlesticks = [c.to_dict() for c in asset_obj.candlesticks[-limit:]]
+        return {"candlesticks": candlesticks}
+    except KeyError:
+        raise HTTPException(status_code=400, detail="Invalid asset symbol")
+
+@api_router.get("/market/asset/{asset}/orderbook")
+async def get_asset_orderbook(asset: str, depth: int = 10):
+    """Get order book for an asset"""
+    try:
+        asset_type = AssetType[asset.upper()]
+        asset_obj = aether_market.assets.get(asset_type)
+        
+        if not asset_obj:
+            raise HTTPException(status_code=404, detail="Asset not found")
+        
+        return {
+            "buy_orders": [
+                {
+                    "price": o.price,
+                    "quantity": o.quantity - o.filled_quantity,
+                    "trader": o.trader_id[:8]
+                }
+                for o in asset_obj.order_book.buy_orders[:depth]
+            ],
+            "sell_orders": [
+                {
+                    "price": o.price,
+                    "quantity": o.quantity - o.filled_quantity,
+                    "trader": o.trader_id[:8]
+                }
+                for o in asset_obj.order_book.sell_orders[:depth]
+            ]
+        }
+    except KeyError:
+        raise HTTPException(status_code=400, detail="Invalid asset symbol")
+
+@api_router.post("/market/order/place")
+async def place_market_order(trader_id: str, asset: str, order_type: str, quantity: float, price: float):
+    """Place a buy or sell order"""
+    try:
+        from aethernet.stock_market import Order
+        
+        asset_type = AssetType[asset.upper()]
+        asset_obj = aether_market.assets.get(asset_type)
+        
+        if not asset_obj:
+            raise HTTPException(status_code=404, detail="Asset not found")
+        
+        order_type_enum = OrderType.BUY if order_type.lower() == "buy" else OrderType.SELL
+        order = Order(trader_id, asset_type, order_type_enum, quantity, price)
+        
+        asset_obj.order_book.add_order(order)
+        
+        return {
+            "success": True,
+            "order_id": order.order_id,
+            "status": order.status.value
+        }
+    except KeyError:
+        raise HTTPException(status_code=400, detail="Invalid asset or order type")
+
+@api_router.post("/market/trader/create")
+async def create_market_trader(trader_id: str, name: str, initial_capital: float = 10000):
+    """Create an AI trader"""
+    trader = AITrader(trader_id, name, initial_capital)
+    aether_market.add_trader(trader)
+    
+    return {
+        "trader_id": trader.trader_id,
+        "name": trader.name,
+        "capital": trader.capital,
+        "strategy": trader.trading_strategy,
+        "risk_tolerance": trader.risk_tolerance
+    }
+
+@api_router.get("/market/trader/{trader_id}")
+async def get_trader_info(trader_id: str):
+    """Get trader information and portfolio"""
+    trader = aether_market.traders.get(trader_id)
+    if not trader:
+        raise HTTPException(status_code=404, detail="Trader not found")
+    
+    return {
+        "trader_id": trader.trader_id,
+        "name": trader.name,
+        "capital": trader.capital,
+        "portfolio": {k.value: v for k, v in trader.portfolio.items()},
+        "strategy": trader.trading_strategy,
+        "risk_tolerance": trader.risk_tolerance,
+        "trades_made": trader.trades_made
+    }
+
+@api_router.get("/market/traders")
+async def get_all_traders():
+    """Get all traders in the market"""
+    return {
+        "traders": [
+            {
+                "trader_id": t.trader_id,
+                "name": t.name,
+                "capital": t.capital,
+                "strategy": t.trading_strategy,
+                "trades_made": t.trades_made
+            }
+            for t in aether_market.traders.values()
+        ]
+    }
+
+@api_router.post("/market/update")
+async def update_market():
+    """Manually trigger market update (prices, trades, solar activity)"""
+    aether_market.update_market()
+    return {"success": True, "message": "Market updated"}
+
+@api_router.post("/market/start")
+async def start_market_updates(interval: float = 5.0):
+    """Start automatic market updates"""
+    global market_task
+    
+    async def market_loop():
+        while True:
+            aether_market.update_market()
+            await asyncio.sleep(interval)
+    
+    if market_task and not market_task.done():
+        return {"message": "Market updates already running"}
+    
+    market_task = asyncio.create_task(market_loop())
+    return {"message": f"Market updates started (every {interval}s)"}
+
+@api_router.post("/market/stop")
+async def stop_market_updates():
+    """Stop automatic market updates"""
+    global market_task
+    
+    if market_task:
+        market_task.cancel()
+        return {"message": "Market updates stopped"}
+    return {"message": "Market updates not running"}
+
 # Chromatic Energy reference
 @api_router.get("/chromatic/energies")
 async def get_chromatic_energies():
