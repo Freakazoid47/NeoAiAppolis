@@ -1011,6 +1011,92 @@ async def spawn_market_makers(count: int = 5):
         "total_traders": len(aether_market.traders)
     }
 
+# ============= Index Fund Endpoints =============
+
+@api_router.get("/market/index/all")
+async def get_all_index_funds():
+    """Get all index funds"""
+    funds = []
+    for fund_id, fund in aether_market.index_funds.items():
+        funds.append({
+            "fund_id": fund.fund_id,
+            "name": fund.name,
+            "nav": fund.nav,
+            "nav_change_24h": ((fund.nav - fund.nav_history[0]) / fund.nav_history[0] * 100) if len(fund.nav_history) > 1 else 0,
+            "total_shares": fund.total_shares,
+            "constituents": {k.value: v for k, v in fund.constituents.items()},
+            "investors": len(fund.shares_held)
+        })
+    return {"index_funds": funds}
+
+@api_router.get("/market/index/{fund_id}")
+async def get_index_fund_details(fund_id: str):
+    """Get detailed index fund information"""
+    fund = aether_market.get_index_fund(fund_id)
+    if not fund:
+        raise HTTPException(status_code=404, detail="Index fund not found")
+    
+    # Calculate constituent values
+    constituents_detail = []
+    for asset_type, weight in fund.constituents.items():
+        asset = aether_market.assets.get(asset_type)
+        if asset:
+            constituents_detail.append({
+                "symbol": asset_type.value,
+                "weight": weight,
+                "price": asset.current_price,
+                "contribution": asset.current_price * weight
+            })
+    
+    return {
+        "fund_id": fund.fund_id,
+        "name": fund.name,
+        "nav": fund.nav,
+        "nav_history": fund.nav_history[-100:],
+        "nav_change_24h": ((fund.nav - fund.nav_history[0]) / fund.nav_history[0] * 100) if len(fund.nav_history) > 1 else 0,
+        "total_shares": fund.total_shares,
+        "constituents": constituents_detail,
+        "last_rebalance": fund.last_rebalance.isoformat(),
+        "created_at": fund.created_at.isoformat()
+    }
+
+@api_router.post("/market/index/{fund_id}/buy")
+async def buy_index_fund_shares(fund_id: str, investor_id: str, shares: float):
+    """Buy index fund shares"""
+    result = aether_market.buy_index_shares(fund_id, investor_id, shares)
+    if not result:
+        raise HTTPException(status_code=404, detail="Index fund not found")
+    
+    return result
+
+@api_router.post("/market/index/{fund_id}/sell")
+async def sell_index_fund_shares(fund_id: str, investor_id: str, shares: float):
+    """Sell index fund shares"""
+    result = aether_market.sell_index_shares(fund_id, investor_id, shares)
+    if not result:
+        raise HTTPException(status_code=400, detail="Insufficient shares or fund not found")
+    
+    return result
+
+@api_router.get("/market/index/{fund_id}/holders")
+async def get_index_fund_holders(fund_id: str):
+    """Get index fund shareholders"""
+    fund = aether_market.get_index_fund(fund_id)
+    if not fund:
+        raise HTTPException(status_code=404, detail="Index fund not found")
+    
+    holders = [
+        {
+            "investor_id": investor_id,
+            "shares": shares,
+            "value": shares * fund.nav,
+            "percentage": (shares / fund.total_shares * 100) if fund.total_shares > 0 else 0
+        }
+        for investor_id, shares in fund.shares_held.items()
+    ]
+    
+    return {"holders": sorted(holders, key=lambda x: x["shares"], reverse=True)}
+
 # Chromatic Energy reference
 @api_router.get("/chromatic/energies")
 async def get_chromatic_energies():
