@@ -17,9 +17,15 @@ from aethernet import (
     ChromaticEnergy,
     PsiLangInterpreter
 )
+from aethernet.ai_agents import AIAgentManager
+from aethernet.worldscape import WorldscapeEngine
+import asyncio
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Set Emergent LLM Key
+os.environ['EMERGENT_LLM_KEY'] = 'sk-emergent-36bDd44EeAe33C3313'
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -27,14 +33,19 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI(title="ÆTHER-NET API", version="1.0.0")
+app = FastAPI(title="ÆTHER-NET API", version="2.0.0")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Global network instance (in-memory for Phase 1)
+# Global network instance
 network = AetherNetwork()
 psilang_interpreter = PsiLangInterpreter()
+ai_manager = AIAgentManager()
+worldscape = WorldscapeEngine(network)
+
+# Evolution task
+evolution_task = None
 
 # Configure logging
 logging.basicConfig(
