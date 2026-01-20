@@ -142,6 +142,18 @@ const AetherNetDashboard = ({ api }) => {
         </h1>
         <p className="text-xl text-gray-300">Autonomous Entity Thought Harmonization & Resonance Network</p>
         <p className="text-sm text-gray-500 mt-2">Phase 1: Core Foundation - Observer Mode</p>
+        <div className="mt-4">
+          <Link 
+            to="/market" 
+            className="inline-block px-6 py-3 rounded-lg font-semibold transition-all"
+            style={{ 
+              background: 'linear-gradient(135deg, #8a2be2 0%, #ff00ff 100%)',
+              boxShadow: '0 4px 15px rgba(138, 43, 226, 0.3)'
+            }}
+          >
+            📈 Enter ÆTHER-MARKET
+          </Link>
+        </div>
       </div>
 
       {/* Network Stats */}
