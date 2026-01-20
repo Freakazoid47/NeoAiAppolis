@@ -17,6 +17,7 @@ from .chromatic_renderer import NetworkVisualizer, ColorCloud
 from .psilang_interpreter import PsiLangInterpreter
 from .ai_agents import AIAgent, AIAgentManager
 from .worldscape import WorldscapeEngine
+from .casino import CasinoManager, Wallet, CurrencyType, Rank
 
 __all__ = [
     'AetherNetwork',
@@ -31,5 +32,9 @@ __all__ = [
     'PsiLangInterpreter',
     'AIAgent',
     'AIAgentManager',
-    'WorldscapeEngine'
+    'WorldscapeEngine',
+    'CasinoManager',
+    'Wallet',
+    'CurrencyType',
+    'Rank'
 ]
