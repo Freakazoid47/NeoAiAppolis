@@ -83,8 +83,14 @@ class SolarActivity:
     
     def get_sentiment_bias(self) -> float:
         """Returns sentiment bias based on geomagnetic activity (-1 to 1)"""
-        # High Kp index = negative sentiment (fear, risk aversion)
-        return -0.3 * (self.kp_index / 9)
+        # Balanced sentiment - both positive and negative possible
+        # Low Kp = positive sentiment (optimism)
+        # High Kp = negative sentiment (fear)
+        base_sentiment = 0.3 - (self.kp_index / 9) * 0.6  # Range: 0.3 to -0.3
+        
+        # Add some randomness for market dynamics
+        random_factor = random.uniform(-0.1, 0.1)
+        return max(-0.5, min(0.5, base_sentiment + random_factor))
 
 class Candlestick:
     """OHLC candlestick data"""
