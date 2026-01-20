@@ -579,6 +579,226 @@ async def get_recent_casino_games(limit: int = 20):
         game["timestamp"] = game["timestamp"].isoformat()
     return {"games": games}
 
+# ============= Texas Hold'em Poker Endpoints =============
+
+@api_router.post("/poker/room/create")
+async def create_poker_room(name: str, small_blind: float, big_blind: float):
+    """Create a Texas Hold'em room"""
+    room = card_game_manager.create_poker_room(name, small_blind, big_blind)
+    return {
+        "room_id": room.room_id,
+        "name": room.name,
+        "small_blind": room.small_blind,
+        "big_blind": room.big_blind,
+        "max_players": room.max_players
+    }
+
+@api_router.post("/poker/room/{room_id}/join")
+async def join_poker_room(room_id: str, player_id: str, player_name: str, chips: float):
+    """Join a poker room"""
+    success = card_game_manager.join_poker_room(room_id, player_id, player_name, chips)
+    if success:
+        return {"success": True, "message": f"{player_name} joined the room"}
+    return {"success": False, "message": "Room full or not found"}
+
+@api_router.get("/poker/rooms")
+async def get_poker_rooms():
+    """Get all active poker rooms"""
+    return {"rooms": card_game_manager.get_active_poker_rooms()}
+
+@api_router.get("/poker/room/{room_id}")
+async def get_poker_room_state(room_id: str):
+    """Get poker room state"""
+    room = card_game_manager.get_poker_room(room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    return {
+        "room_id": room.room_id,
+        "name": room.name,
+        "players": [
+            {
+                "player_id": p.player_id,
+                "name": p.name,
+                "chips": p.chips,
+                "current_bet": p.current_bet,
+                "folded": p.folded,
+                "hand": [c.to_dict() for c in p.hand] if room.game_state == "showdown" else []
+            }
+            for p in room.players
+        ],
+        "community_cards": [c.to_dict() for c in room.community_cards],
+        "pot": room.pot,
+        "current_bet": room.current_bet,
+        "game_state": room.game_state,
+        "dealer_position": room.dealer_position
+    }
+
+@api_router.post("/poker/room/{room_id}/start")
+async def start_poker_game(room_id: str):
+    """Start poker game in room"""
+    room = card_game_manager.get_poker_room(room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    if room.start_game():
+        return {"success": True, "message": "Game started"}
+    return {"success": False, "message": "Need at least 2 players"}
+
+@api_router.post("/poker/room/{room_id}/action")
+async def poker_action(room_id: str, player_id: str, action: str, amount: float = 0):
+    """Perform poker action (fold, call, raise, check)"""
+    room = card_game_manager.get_poker_room(room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    # Simplified action handling
+    player = next((p for p in room.players if p.player_id == player_id), None)
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+    
+    if action == "fold":
+        player.folded = True
+    elif action == "call":
+        call_amount = room.current_bet - player.current_bet
+        player.chips -= call_amount
+        player.current_bet += call_amount
+        room.pot += call_amount
+    elif action == "raise":
+        raise_amount = amount - player.current_bet
+        player.chips -= raise_amount
+        player.current_bet = amount
+        room.current_bet = amount
+        room.pot += raise_amount
+    
+    return {"success": True, "action": action}
+
+# ============= All Fours Card Game Endpoints =============
+
+@api_router.post("/all-fours/game/create")
+async def create_all_fours_game():
+    """Create an All Fours game"""
+    game = card_game_manager.create_all_fours_game()
+    return {
+        "game_id": game.game_id,
+        "target_score": game.target_score,
+        "state": game.game_state
+    }
+
+@api_router.post("/all-fours/game/{game_id}/join")
+async def join_all_fours_game(game_id: str, player_id: str, player_name: str):
+    """Join an All Fours game"""
+    from aethernet.card_games import AllFoursPlayer
+    game = card_game_manager.get_all_fours_game(game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    
+    player = AllFoursPlayer(player_id, player_name)
+    if game.add_player(player):
+        return {"success": True, "message": f"{player_name} joined the game"}
+    return {"success": False, "message": "Game full (max 4 players)"}
+
+@api_router.get("/all-fours/game/{game_id}")
+async def get_all_fours_game_state(game_id: str):
+    """Get All Fours game state"""
+    game = card_game_manager.get_all_fours_game(game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    
+    return {
+        "game_id": game.game_id,
+        "players": [
+            {
+                "player_id": p.player_id,
+                "name": p.name,
+                "score": p.score,
+                "hand_size": len(p.hand),
+                "tricks_won": len(p.tricks_won),
+                "bid": p.bid
+            }
+            for p in game.players
+        ],
+        "trump_suit": game.trump_suit.value if game.trump_suit else None,
+        "game_state": game.game_state,
+        "current_trick_size": len(game.current_trick)
+    }
+
+@api_router.post("/all-fours/game/{game_id}/start")
+async def start_all_fours_game(game_id: str):
+    """Start All Fours game"""
+    game = card_game_manager.get_all_fours_game(game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    
+    if game.start_game():
+        return {"success": True, "message": "Game started"}
+    return {"success": False, "message": "Need at least 2 players"}
+
+@api_router.post("/all-fours/game/{game_id}/bid")
+async def place_all_fours_bid(game_id: str, player_idx: int, bid: int):
+    """Place bid in All Fours"""
+    game = card_game_manager.get_all_fours_game(game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    
+    if game.place_bid(player_idx, bid):
+        return {"success": True, "bid": bid}
+    return {"success": False, "message": "Invalid bid (must be 1-4)"}
+
+# ============= Betting System Endpoints =============
+
+@api_router.post("/betting/place")
+async def place_bet(bettor_id: str, game_id: str, bet_amount: float, bet_on: str, currency: str = "PSICOIN"):
+    """Place a bet on a game outcome"""
+    bet = card_game_manager.place_bet(bettor_id, game_id, bet_amount, bet_on, currency)
+    return {
+        "bet_id": bet.bet_id,
+        "bettor_id": bet.bettor_id,
+        "game_id": bet.game_id,
+        "bet_amount": bet.bet_amount,
+        "bet_on": bet.bet_on,
+        "odds": bet.odds,
+        "potential_payout": bet.bet_amount * bet.odds
+    }
+
+@api_router.get("/betting/bet/{bet_id}")
+async def get_bet_status(bet_id: str):
+    """Get bet status"""
+    bet = card_game_manager.bets.get(bet_id)
+    if not bet:
+        raise HTTPException(status_code=404, detail="Bet not found")
+    
+    return {
+        "bet_id": bet.bet_id,
+        "bettor_id": bet.bettor_id,
+        "game_id": bet.game_id,
+        "bet_amount": bet.bet_amount,
+        "bet_on": bet.bet_on,
+        "odds": bet.odds,
+        "resolved": bet.resolved,
+        "won": bet.won,
+        "payout": bet.payout,
+        "created_at": bet.created_at.isoformat()
+    }
+
+@api_router.get("/betting/player/{player_id}")
+async def get_player_bets(player_id: str):
+    """Get all bets for a player"""
+    player_bets = [
+        {
+            "bet_id": bet.bet_id,
+            "game_id": bet.game_id,
+            "bet_amount": bet.bet_amount,
+            "bet_on": bet.bet_on,
+            "resolved": bet.resolved,
+            "won": bet.won,
+            "payout": bet.payout
+        }
+        for bet in card_game_manager.bets.values()
+        if bet.bettor_id == player_id
+    ]
+    return {"bets": player_bets}
+
 # Chromatic Energy reference
 @api_router.get("/chromatic/energies")
 async def get_chromatic_energies():
