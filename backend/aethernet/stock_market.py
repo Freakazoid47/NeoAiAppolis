@@ -617,6 +617,14 @@ class AetherMarket:
                 }
                 for asset_type, asset in self.assets.items()
             },
+            "index_funds": {
+                fund_id: {
+                    "name": fund.name,
+                    "nav": fund.nav,
+                    "change_24h": ((fund.nav - fund.nav_history[0]) / fund.nav_history[0] * 100) if len(fund.nav_history) > 1 else 0
+                }
+                for fund_id, fund in self.index_funds.items()
+            },
             "total_traders": len(self.traders),
             "market_status": "open" if self.market_open else "closed"
         }
