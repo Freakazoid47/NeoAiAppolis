@@ -18,6 +18,7 @@ from .psilang_interpreter import PsiLangInterpreter
 from .ai_agents import AIAgent, AIAgentManager
 from .worldscape import WorldscapeEngine
 from .casino import CasinoManager, Wallet, CurrencyType, Rank
+from .card_games import CardGameManager
 
 __all__ = [
     'AetherNetwork',
@@ -36,5 +37,6 @@ __all__ = [
     'CasinoManager',
     'Wallet',
     'CurrencyType',
-    'Rank'
+    'Rank',
+    'CardGameManager'
 ]
