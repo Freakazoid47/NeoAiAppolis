@@ -20,6 +20,7 @@ from aethernet import (
 )
 from aethernet.ai_agents import AIAgentManager
 from aethernet.worldscape import WorldscapeEngine
+from aethernet.casino import CasinoManager, CurrencyType
 import asyncio
 
 ROOT_DIR = Path(__file__).parent
