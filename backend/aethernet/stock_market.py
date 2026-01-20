@@ -388,6 +388,28 @@ class AetherMarket:
     
     def add_trader(self, trader: AITrader):
         self.traders[trader.trader_id] = trader
+        
+        # Initialize portfolio with some assets for market makers
+        if trader.trading_strategy == "market_maker":
+            # Give market makers initial inventory to provide liquidity
+            for asset_type in self.assets.keys():
+                initial_units = (trader.capital * 0.1) / self.assets[asset_type].current_price
+                trader.portfolio[asset_type] = initial_units
+                trader.capital -= initial_units * self.assets[asset_type].current_price
+    
+    def spawn_market_makers(self, count: int = 5):
+        """Spawn AI market makers to provide liquidity"""
+        strategies = ["market_maker", "momentum", "mean_reversion", "contrarian"]
+        for i in range(count):
+            trader_id = f"ai_mm_{i}_{uuid.uuid4().hex[:8]}"
+            name = f"MarketMaker_{i+1}"
+            capital = random.uniform(50000, 150000)
+            
+            trader = AITrader(trader_id, name, capital)
+            trader.trading_strategy = strategies[i % len(strategies)]
+            trader.risk_tolerance = random.uniform(0.4, 0.8)
+            
+            self.add_trader(trader)
     
     def update_market(self):
         """Market tick - update prices and execute trades"""
