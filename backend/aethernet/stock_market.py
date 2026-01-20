@@ -353,6 +353,8 @@ class IndexFund:
             self.constituents[asset_type] = 1.0 / num_constituents
         
         self.last_rebalance = datetime.now()
+
+class AITrader:
     """AI entity that trades on the market"""
     def __init__(self, trader_id: str, name: str, initial_capital: float):
         self.trader_id = trader_id
