@@ -47,6 +47,7 @@ psilang_interpreter = PsiLangInterpreter()
 ai_manager = AIAgentManager()
 worldscape = WorldscapeEngine(network)
 casino_manager = CasinoManager()
+card_game_manager = CardGameManager()
 
 # Evolution task
 evolution_task = None
