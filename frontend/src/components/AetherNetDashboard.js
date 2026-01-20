@@ -5,6 +5,7 @@ import NetworkStats from "./NetworkStats";
 import ControlPanel from "./ControlPanel";
 import ResonanceVisualization from "./ResonanceVisualization";
 import EntanglementVisualization from "./EntanglementVisualization";
+import AIWorldscapePanel from "./AIWorldscapePanel";
 
 const AetherNetDashboard = ({ api }) => {
   const [entities, setEntities] = useState([]);
