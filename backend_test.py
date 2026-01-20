@@ -11,8 +11,8 @@ import time
 from datetime import datetime
 
 class AllFoursAPITester:
-    def __init__(self, base_url=""):
-        # Use empty base_url for relative paths (proxy setup)
+    def __init__(self, base_url="http://localhost:8001"):
+        # Use localhost:8001 for direct backend testing
         self.base_url = base_url
         self.token = None
         self.user_id = None
